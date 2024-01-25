@@ -1,0 +1,5 @@
+env
+__pycache__
+
+training_dataset.csv
+validation_dataset.csv
