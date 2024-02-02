@@ -13,8 +13,8 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
         {
             if (j == 0)
                 this->_hiddenLayers[j].forwardPropagation(Layer(this->_inputLayer));
-            else
-                this->_hiddenLayers[j].forwardPropagation(this->_hiddenLayers[j - 1].getOutputLayer());
+            // else
+            //     this->_hiddenLayers[j].forwardPropagation(this->_hiddenLayers[j - 1]);
         }
     }
 }

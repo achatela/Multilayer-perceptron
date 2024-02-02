@@ -13,6 +13,11 @@ public:
 
     void forwardPropagation(Layer previousLayer);
 
+    std::vector<Neuron> &getNeurons() { return this->_neurons; };
+    float getBiasNeuron() { return this->_biasNeuron; };
+
+    float reluFunction(float x);
+
 private:
     float _biasNeuron;
     std::vector<Neuron> _neurons;
