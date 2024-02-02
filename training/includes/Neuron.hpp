@@ -1,12 +1,22 @@
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
 
+class Neuron
+{
 
-class Neuron {
+public:
+    // for the input layer
+    Neuron(std::vector<float> inputs, int featureNumber);
+    // for the hidden layers
+    Neuron(int sizePreviousLayer, int featureNumber);
+    ~Neuron();
 
-    public:
-        Neuron();
-        ~Neuron();
+    void heInitialization(int sizePreviousLayer, int featureNumber);
 
-
-    private:
-        
-}
+private:
+    float _bias;
+    std::vector<float> _weights;
+    std::vector<float> _inputs;
+};
