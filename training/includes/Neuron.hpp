@@ -21,6 +21,7 @@ public:
     std::vector<float> &getInputs() { return this->_inputs; };
 
     void setOutput(float output) { this->_output = output; };
+    
 
 private:
     float _bias;
