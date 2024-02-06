@@ -18,6 +18,7 @@ Layer::Layer(std::vector<std::vector<float>> inputs)
     {
         Neuron neuron(inputs[i], inputs[i].size());
         _neurons.push_back(neuron);
+        _neurons[i].setActivated(true);
     }
     this->_biasNeuron = 1;
 }
@@ -34,7 +35,17 @@ float Layer::reluFunction(float x)
         return 0;
 }
 
-void Layer::feedForward(Layer &previousLayer)
+float Layer::softMaxFunction(float x, std::vector<float> outputs)
+{
+    float sum = 0;
+    for (int i = 0; i < outputs.size(); i++)
+    {
+        sum += std::exp(outputs[i]);
+    }
+    return std::exp(x) / sum;
+}
+
+void Layer::feedForward(Layer &previousLayer, int mode)
 {
     int number = 0;
     std::vector<float> outputs;
@@ -43,6 +54,8 @@ void Layer::feedForward(Layer &previousLayer)
         float sum = 0;
         for (int j = 0; j < previousLayer.getNeurons().size(); j++)
         {
+            if (!previousLayer.getNeurons()[j].getActivated())
+                continue;
             std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
 
             for (int k = 0; k < previousNeuronsInputs.size(); k++)
@@ -53,7 +66,11 @@ void Layer::feedForward(Layer &previousLayer)
             }
         }
         sum += previousLayer.getBiasNeuron();
-        float activated = reluFunction(sum);
+        float activated;
+        if (mode == 1)
+            activated = reluFunction(sum);
+        else
+            activated = softMaxFunction(sum, outputs);
         this->_neurons[i].setInputs(outputs);
         outputs.clear();
         if (activated > 0)
