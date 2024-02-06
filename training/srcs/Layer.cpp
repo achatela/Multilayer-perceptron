@@ -34,25 +34,33 @@ float Layer::reluFunction(float x)
         return 0;
 }
 
-void Layer::forwardPropagation(Layer &previousLayer)
+void Layer::feedForward(Layer &previousLayer)
 {
+    int number = 0;
+    std::vector<float> outputs;
     for (int i = 0; i < this->_neurons.size(); i++)
     {
         float sum = 0;
-        std::cout << this->_neurons.size() << " ";
-        std::cout << previousLayer.getNeurons().size() << std::endl;
         for (int j = 0; j < previousLayer.getNeurons().size(); j++)
         {
-            for (int k = 0; k < previousLayer.getNeurons()[j].getInputs().size(); k++)
+            std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
+
+            for (int k = 0; k < previousNeuronsInputs.size(); k++)
             {
-                if (k == 0)
-                    std::cout << previousLayer.getNeurons()[j].getInputs()[k] << " " << _neurons[i].getWeights()[k] << std::endl;
-                sum += previousLayer.getNeurons()[j].getInputs()[k] * _neurons[i].getWeights()[k];
+                float computed = previousNeuronsInputs[k] * _neurons[i].getWeights()[k];
+                outputs.push_back(computed);
+                sum += computed;
             }
         }
         sum += previousLayer.getBiasNeuron();
         float activated = reluFunction(sum);
-        this->_neurons[i].setOutput(sum);
-        std::cout << "sum: " << sum << std::endl;
+        this->_neurons[i].setInputs(outputs);
+        outputs.clear();
+        if (activated > 0)
+        {
+            number++;
+            this->_neurons[i].setActivated(true);
+        }
     }
+    std::cout << "number of neurons actived " << number << std::endl;
 }

@@ -11,7 +11,7 @@ public:
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber);
     ~Layer();
 
-    void forwardPropagation(Layer &previousLayer);
+    void feedForward(Layer &previousLayer);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     float getBiasNeuron() { return this->_biasNeuron; };
