@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include "Neuron.hpp"
 
 class Layer
@@ -12,6 +13,7 @@ public:
     ~Layer();
 
     void feedForward(Layer &previousLayer, int mode);
+    void backPropagation();
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     float getBiasNeuron() { return this->_biasNeuron; };

@@ -38,9 +38,10 @@ float Layer::reluFunction(float x)
 float Layer::softMaxFunction(float x, std::vector<float> outputs)
 {
     float sum = 0;
-    for (int i = 0; i < outputs.size(); i++)
+    for (int i = 1; i < outputs.size(); i++)
     {
-        sum += std::exp(outputs[i]);
+        float compute = std::exp(outputs[i]);
+        sum += compute;
     }
     return std::exp(x) / sum;
 }
@@ -48,7 +49,7 @@ float Layer::softMaxFunction(float x, std::vector<float> outputs)
 void Layer::feedForward(Layer &previousLayer, int mode)
 {
     int number = 0;
-    std::vector<float> outputs;
+    std::vector<float> outputs(32, 0);
     for (int i = 0; i < this->_neurons.size(); i++)
     {
         float sum = 0;
@@ -58,10 +59,11 @@ void Layer::feedForward(Layer &previousLayer, int mode)
                 continue;
             std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
 
-            for (int k = 0; k < previousNeuronsInputs.size(); k++)
+            outputs[0] = previousNeuronsInputs[0];
+            for (int k = 1; k < previousNeuronsInputs.size(); k++) // start from 1 because the first element is the answer
             {
                 float computed = previousNeuronsInputs[k] * _neurons[i].getWeights()[k];
-                outputs.push_back(computed);
+                outputs[k] += computed;
                 sum += computed;
             }
         }
@@ -72,7 +74,6 @@ void Layer::feedForward(Layer &previousLayer, int mode)
         else
             activated = softMaxFunction(sum, outputs);
         this->_neurons[i].setInputs(outputs);
-        outputs.clear();
         if (activated > 0)
         {
             number++;
@@ -80,4 +81,8 @@ void Layer::feedForward(Layer &previousLayer, int mode)
         }
     }
     std::cout << "number of neurons actived " << number << std::endl;
+}
+
+void Layer::backPropagation()
+{
 }

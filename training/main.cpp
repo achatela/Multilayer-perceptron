@@ -46,9 +46,9 @@ int main(int argc, char **argv)
             if (token == "B" || token == "M")
             {
                 if (token == "B")
-                    row.push_back(-1);
+                    row.push_back(0);
                 else
-                    row.push_back(-2);
+                    row.push_back(1);
                 continue;
             }
             row.push_back(std::stof(token));
@@ -58,13 +58,4 @@ int main(int argc, char **argv)
 
     Model model(inputs, columnNames, 2, 100);
     auto inputLayer = model.getInputLayer();
-    for (auto row : inputLayer)
-    {
-        for (auto value : row)
-        {
-            std::cout << value << " ";
-        }
-        std::cout << std::endl;
-        break;
-    }
 }
