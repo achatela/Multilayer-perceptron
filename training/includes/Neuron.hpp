@@ -17,7 +17,9 @@ public:
     void heInitialization(int sizePreviousLayer, int featureNumber);
 
     float &getBias() { return this->_bias; };
+
     std::vector<float> &getWeights() { return this->_weights; };
+    void setWeights(std::vector<float> weights) { this->_weights = weights; };
 
     std::vector<float> &getInputs() { return this->_inputs; };
     void setInputs(std::vector<float> inputs) { this->_inputs = inputs; };
@@ -28,10 +30,22 @@ public:
     void setActivated(bool activated) { this->_activated = activated; };
     bool getActivated() { return this->_activated; };
 
+    float getSlope() { return slope; };
+    float getIntercept() { return intercept; };
+
+    void setClassPredicted(int classPredicted) { this->classPredicted = classPredicted; };
+
 private:
     float _bias;
     std::vector<float> _weights;
     std::vector<float> _inputs;
     float _output;
     bool _activated = false;
+
+    float slope = 0.01;
+    float intercept = 0.01;
+
+    float learningRate = 0.01;
+
+    int classPredicted;
 };

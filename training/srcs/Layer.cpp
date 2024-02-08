@@ -1,5 +1,17 @@
 #include "../includes/Layer.hpp"
 
+// for the input layer
+Layer::Layer(std::vector<std::vector<float>> inputs)
+{
+    for (int i = 0; i < inputs.size(); i++)
+    {
+        Neuron neuron(inputs[i], inputs[i].size());
+        _neurons.push_back(neuron);
+        _neurons[i].setActivated(true);
+    }
+    this->_biasNeuron = 1;
+}
+
 // for the hidden layers
 Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber)
 {
@@ -11,14 +23,14 @@ Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber)
     this->_biasNeuron = 1;
 }
 
-// for the input layer
-Layer::Layer(std::vector<std::vector<float>> inputs)
+// for the output layer
+Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, bool isOutputLayer)
 {
-    for (int i = 0; i < inputs.size(); i++)
+    for (int i = 0; i < neuronsNumber; i++)
     {
-        Neuron neuron(inputs[i], inputs[i].size());
+        Neuron neuron(sizePreviousLayer, featureNumber);
+        neuron.setClassPredicted(i);
         _neurons.push_back(neuron);
-        _neurons[i].setActivated(true);
     }
     this->_biasNeuron = 1;
 }
@@ -35,31 +47,32 @@ float Layer::reluFunction(float x)
         return 0;
 }
 
-float Layer::softMaxFunction(float x, std::vector<float> outputs)
+std::vector<float> Layer::sigmoidFunction(std::vector<float> outputs, int numberClasses = 2)
 {
     float sum = 0;
-    for (int i = 1; i < outputs.size(); i++)
+    for (int i = 0; i < outputs.size(); i++)
     {
-        float compute = std::exp(outputs[i]);
-        sum += compute;
+        sum = outputs[i];
     }
-    return std::exp(x) / sum;
+    float result = 1 / (1 + exp(-sum));
+    std::cout << result << std::endl;
+    return outputs;
 }
 
 void Layer::feedForward(Layer &previousLayer, int mode)
 {
-    int number = 0;
-    std::vector<float> outputs(32, 0);
-    for (int i = 0; i < this->_neurons.size(); i++)
+    std::vector<float> outputs(32, 0); // TODO: calculate the size of the outputs
+
+    for (int i = 0; i < this->_neurons.size(); i++) // in every neuron of the actual layer
     {
         float sum = 0;
-        for (int j = 0; j < previousLayer.getNeurons().size(); j++)
+        for (int j = 0; j < previousLayer.getNeurons().size(); j++) // for every neuron of the previous layer
         {
-            if (!previousLayer.getNeurons()[j].getActivated())
+            if (!previousLayer.getNeurons()[j].getActivated()) // if the previous neuron is not activated, we skip it
                 continue;
-            std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
 
-            outputs[0] = previousNeuronsInputs[0];
+            std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
+            outputs[0] = previousNeuronsInputs[0];                 // the first element is the answer
             for (int k = 1; k < previousNeuronsInputs.size(); k++) // start from 1 because the first element is the answer
             {
                 float computed = previousNeuronsInputs[k] * _neurons[i].getWeights()[k];
@@ -68,19 +81,39 @@ void Layer::feedForward(Layer &previousLayer, int mode)
             }
         }
         sum += previousLayer.getBiasNeuron();
-        float activated;
-        if (mode == 1)
-            activated = reluFunction(sum);
-        else
-            activated = softMaxFunction(sum, outputs);
-        this->_neurons[i].setInputs(outputs);
-        if (activated > 0)
+        float y = outputs[0];
+        // gradient descent for loop
+        for (int k = 1; k < outputs.size(); k++)
         {
-            number++;
-            this->_neurons[i].setActivated(true);
+            outputs[k] = outputs[k] + (this->_neurons[i].getSlope() * (y - outputs[k]) + this->_neurons[i].getIntercept());
+        }
+        this->_neurons[i].setWeights(outputs);
+
+        if (mode == 1)
+        {
+            this->_neurons[i].setInputs(outputs);
+            if (reluFunction(sum) > 0)
+                this->_neurons[i].setActivated(true);
+        }
+        else
+        {
+            std::cout << std::endl;
+            std::vector<float> result = sigmoidFunction(outputs);
+            this->_neurons[i].setInputs(result);
         }
     }
-    std::cout << "number of neurons actived " << number << std::endl;
+    debugNeuronsActivated();
+}
+
+void Layer::debugNeuronsActivated()
+{
+    int number = 0;
+    for (int i = 0; i < this->_neurons.size(); i++)
+    {
+        if (this->_neurons[i].getActivated())
+            number++;
+    }
+    std::cout << "Number of activated neurons: " << number << std::endl;
 }
 
 void Layer::backPropagation()
