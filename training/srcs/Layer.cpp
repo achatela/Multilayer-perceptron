@@ -1,4 +1,5 @@
 #include "../includes/Layer.hpp"
+#include <numeric>
 
 // for the input layer
 Layer::Layer(std::vector<std::vector<float>> inputs)
@@ -81,13 +82,6 @@ void Layer::feedForward(Layer &previousLayer, int mode)
             }
         }
         sum += previousLayer.getBiasNeuron();
-        float y = outputs[0];
-        // gradient descent for loop
-        for (int k = 1; k < outputs.size(); k++)
-        {
-            outputs[k] = outputs[k] + (this->_neurons[i].getSlope() * (y - outputs[k]) + this->_neurons[i].getIntercept());
-        }
-        this->_neurons[i].setWeights(outputs);
 
         if (mode == 1)
         {
@@ -97,9 +91,9 @@ void Layer::feedForward(Layer &previousLayer, int mode)
         }
         else
         {
-            std::cout << std::endl;
             std::vector<float> result = sigmoidFunction(outputs);
             this->_neurons[i].setInputs(result);
+            // calculate gradient descent in the output layer
         }
     }
     debugNeuronsActivated();
