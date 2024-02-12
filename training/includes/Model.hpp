@@ -14,6 +14,8 @@ public:
     std::vector<Layer> &getHiddenLayers() { return this->_hiddenLayers; };
     Layer &getOutputLayer() { return this->_outputLayer; };
 
+    void setClassesInputs(std::vector<std::vector<float>> classesInputs);
+
 private:
     std::vector<std::vector<float>> _inputLayer;
     std::vector<Layer> _hiddenLayers;
@@ -22,4 +24,6 @@ private:
     std::vector<std::string> _columnNames;
 
     int _epochs;
+
+    std::vector<std::vector<std::vector<float>>> _classesInputs; // classesInputs[x] every row belonging to class x
 };

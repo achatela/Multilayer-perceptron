@@ -48,15 +48,28 @@ float Layer::reluFunction(float x)
         return 0;
 }
 
-std::vector<float> Layer::sigmoidFunction(std::vector<float> outputs, int numberClasses = 2)
+std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs)
 {
+    std::vector<float> outputs;
+    std::vector<float> inputsSum;
     float sum = 0;
-    for (int i = 0; i < outputs.size(); i++)
+    float sums = 0;
+    std::cout << "Size: " << inputs.size() << std::endl;
+    for (int i = 0; i < inputs.size(); i++)
     {
-        sum = outputs[i];
+        for (int j = 0; j < inputs[i].size(); j++)
+            sum += inputs[i][j];
+        inputsSum.push_back(sum);
+        sums += exp(sum);
+        sum = 0;
     }
-    float result = 1 / (1 + exp(-sum));
-    std::cout << result << std::endl;
+
+    for (int i = 0; i < inputs.size(); i++)
+    {
+        outputs.push_back(exp(inputsSum[i]) / sums);
+        std::cout << "Output: " << outputs[i] << std::endl;
+    }
+
     return outputs;
 }
 
@@ -89,11 +102,15 @@ void Layer::feedForward(Layer &previousLayer, int mode)
             if (reluFunction(sum) > 0)
                 this->_neurons[i].setActivated(true);
         }
-        else
+        else if (mode == 2 && i == this->_neurons.size() - 1)
         {
-            std::vector<float> result = sigmoidFunction(outputs);
-            this->_neurons[i].setInputs(result);
-            // calculate gradient descent in the output layer
+            std::vector<std::vector<float>> inputs;
+            for (int i = 0; i < this->_neurons.size(); i++)
+            {
+                inputs.push_back(this->_neurons[i].getInputs());
+            }
+
+            std::vector<float> result = softmaxFunction(inputs);
         }
     }
     debugNeuronsActivated();

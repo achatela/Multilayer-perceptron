@@ -10,6 +10,7 @@ public:
     Layer(std::vector<std::vector<float>> inputs);
     // for the hidden layers
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber);
+    // for the output layer
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, bool isOutputLayer);
     ~Layer();
 
@@ -19,7 +20,7 @@ public:
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     float getBiasNeuron() { return this->_biasNeuron; };
 
-    std::vector<float> sigmoidFunction(std::vector<float> outputs, int numberClasses);
+    std::vector<float> softmaxFunction(std::vector<std::vector<float>> inputs);
     float reluFunction(float x);
 
     void debugNeuronsActivated();

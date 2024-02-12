@@ -10,8 +10,10 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
         neuronsNumber /= 2;
     }
     this->_hiddenLayers.push_back(this->_outputLayer);
+    setClassesInputs(inputs);
     // for (int i = 0; i < epochs; i++)
     for (int i = 0; i < 1; i++)
+    {
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
             if (j == this->_hiddenLayers.size() - 1)
@@ -19,8 +21,26 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             else
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
+        this->_hiddenLayers.back().backPropagation();
+    }
 }
 
 Model::~Model()
 {
+}
+
+void Model::setClassesInputs(std::vector<std::vector<float>> inputs)
+{
+    for (int i = 0; i < inputs.size(); i++)
+    {
+        std::vector<float> tmp;
+        if (inputs[i][0] + 1 > _classesInputs.size())
+            while (inputs[i][0] + 1 > _classesInputs.size())
+                _classesInputs.push_back(std::vector<std::vector<float>>());
+        for (int j = 1; j < inputs[i].size(); j++) // stqrts at 1 because the first element is the class
+        {
+            tmp.push_back(inputs[i][j]);
+        }
+        _classesInputs[inputs[i][0]].push_back(tmp);
+    }
 }
