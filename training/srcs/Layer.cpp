@@ -96,13 +96,13 @@ void Layer::feedForward(Layer &previousLayer, int mode)
         }
         sum += previousLayer.getBiasNeuron();
 
-        if (mode == 1)
+        if (mode == 1) // hidden layers
         {
             this->_neurons[i].setInputs(outputs);
             if (reluFunction(sum) > 0)
                 this->_neurons[i].setActivated(true);
         }
-        else if (mode == 2 && i == this->_neurons.size() - 1)
+        else if (mode == 2 && i == this->_neurons.size() - 1) // output layer last neuron
         {
             std::vector<std::vector<float>> inputs;
             for (int i = 0; i < this->_neurons.size(); i++)
@@ -127,6 +127,60 @@ void Layer::debugNeuronsActivated()
     std::cout << "Number of activated neurons: " << number << std::endl;
 }
 
-void Layer::backPropagation()
+std::vector<float> Layer::calculatePrediction(std::vector<std::vector<float>> inputs, std::vector<float> weights)
 {
+    std::vector<float> hypothesis;
+
+    for (int i = 0; i < inputs.size(); i++)
+    {
+        float sum = 0;
+        for (int j = 1; j < inputs[i].size(); j++)
+        {
+            sum += inputs[i][j] * weights[j];
+        }
+        // use softmax function to get the predicted class
+        hypothesis.push_back(sum);
+    }
+    return hypothesis;
+}
+
+void Layer::backPropagation(std::vector<Layer> layers, std::vector<std::vector<float>> inputs, float learningRate)
+{
+    for (int i = layers.size() - 1; i > -1; i--)
+    {
+        for (int j = 0; j < layers[i].getNeurons().size(); j++)
+        {
+            if (i == layers.size() - 1) // output layer
+            {
+                std::vector<float> prediction = calculatePrediction(inputs, layers[i].getNeurons()[j].getWeights());
+                // calculate gradient of output layer
+                for (int k = 0; k < prediction.size(); k++)
+                {
+                    float error = prediction[k] - inputs[k][0];
+                    for (int l = 0; l < layers[i].getNeurons()[j].getWeights().size(); l++)
+                    {
+                        float gradient = error * inputs[k][l];
+                        layers[i].getNeurons()[j].getWeights()[l] -= learningRate * gradient;
+                    }
+                }
+            }
+            else
+            {
+                // calculate gradient of hidden layers
+                for (int k = 0; k < layers[i].getNeurons()[j].getWeights().size(); k++)
+                {
+                    float error = 0;
+                    for (int l = 0; l < layers[i + 1].getNeurons().size(); l++)
+                    {
+                        error += layers[i + 1].getNeurons()[l].getWeights()[k] * layers[i + 1].getNeurons()[l].getSlope();
+                    }
+                    // std::cout << "slope before set: " << layers[i].getNeurons()[j].getSlope();
+                    layers[i].getNeurons()[j].setSlope(error);
+                    // std::cout << "slope after set: " << layers[i].getNeurons()[j].getSlope() << std::endl;
+                    float gradient = error * layers[i].getNeurons()[j].getInputs()[k];
+                    layers[i].getNeurons()[j].getWeights()[k] -= learningRate * gradient;
+                }
+            }
+        }
+    }
 }

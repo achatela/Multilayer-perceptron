@@ -33,6 +33,9 @@ public:
     float getSlope() { return slope; };
     float getIntercept() { return intercept; };
 
+    void setSlope(float slope) { this->slope = slope; };
+    void setIntercept(float intercept) { this->intercept = intercept; };
+
     void setClassPredicted(int classPredicted) { this->classPredicted = classPredicted; };
 
 private:

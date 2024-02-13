@@ -11,8 +11,8 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
     }
     this->_hiddenLayers.push_back(this->_outputLayer);
     setClassesInputs(inputs);
-    // for (int i = 0; i < epochs; i++)
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < epochs; i++)
+    // for (int i = 0; i < 1; i++)
     {
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
@@ -21,7 +21,7 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             else
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
-        this->_hiddenLayers.back().backPropagation();
+        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 0.1);
     }
 }
 

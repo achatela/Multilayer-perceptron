@@ -15,13 +15,15 @@ public:
     ~Layer();
 
     void feedForward(Layer &previousLayer, int mode);
-    void backPropagation();
+    void backPropagation(std::vector<Layer> layers, std::vector<std::vector<float>> inputs, float learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     float getBiasNeuron() { return this->_biasNeuron; };
 
     std::vector<float> softmaxFunction(std::vector<std::vector<float>> inputs);
     float reluFunction(float x);
+
+    std::vector<float> calculatePrediction(std::vector<std::vector<float>> inputs, std::vector<float> weights);
 
     void debugNeuronsActivated();
 
