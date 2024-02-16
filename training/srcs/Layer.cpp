@@ -51,24 +51,37 @@ float Layer::reluFunction(float x)
 std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs)
 {
     std::vector<float> outputs;
-    std::vector<float> inputsSum;
-    float sum = 0;
-    float sums = 0;
-    std::cout << "Size: " << inputs.size() << std::endl;
-    for (int i = 0; i < inputs.size(); i++)
-    {
-        for (int j = 0; j < inputs[i].size(); j++)
-            sum += inputs[i][j];
-        inputsSum.push_back(sum);
-        sums += exp(sum);
-        sum = 0;
-    }
+    std::vector<float> exponentials;
+    float sum = 0.0;
 
-    for (int i = 0; i < inputs.size(); i++)
+    for (const auto &input : inputs)
     {
-        outputs.push_back(exp(inputsSum[i]) / sums);
-        std::cout << "Output: " << outputs[i] << std::endl;
+        exponentials.push_back(0);
+        float max_input = 0;
+        // for (float val : input)
+        // {
+        //     if (val > max_input)
+        //         max_input = val;
+        // }
+
+        // Calculate the sum of exponentials
+        for (float val : input)
+        {
+            float exponential = exp(val - max_input);
+            exponentials[exponentials.size() - 1] += exponential;
+        }
+        sum = exp(exponentials[exponentials.size() - 1]);
     }
+    // Calculate softmax output
+    for (float exp_val : exponentials)
+    {
+        outputs.push_back(exp_val / sum);
+    }
+    for (auto &output : outputs)
+    {
+        std::cout << output << " ";
+    }
+    std::cout << std::endl;
 
     return outputs;
 }
@@ -107,7 +120,7 @@ void Layer::feedForward(Layer &previousLayer, int mode)
             std::vector<std::vector<float>> inputs;
             for (int i = 0; i < this->_neurons.size(); i++)
             {
-                inputs.push_back(this->_neurons[i].getInputs());
+                inputs.push_back(this->_neurons[i].getWeights());
             }
 
             std::vector<float> result = softmaxFunction(inputs);
