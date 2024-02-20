@@ -86,22 +86,20 @@ std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs
     return outputs;
 }
 
-int Layer::calculatePrediction(std::vector<float> weights)
+std::vector<float> Layer::calculatePrediction(std::vector<float> inputs, std::vector<float> weights, int size = 2)
 {
-    std::vector<int> predictions;
-    std::vector<float> exponentials;
-    float sum = 0.0;
+    std::vector<float> prediction;
+    float sum = 0;
 
-    for (int i = 0; i < weights.size(); i++)
+    for (int i = 0; i < inputs.size(); i++)
     {
-        exponentials.push_back(exp(weights[i]));
-        sum += exponentials[i];
+        sum += inputs[i] * weights[i];
     }
-    for (int i = 0; i < exponentials.size(); i++)
-    {
-        predictions.push_back(exponentials[i] / sum);
-    }
-    return std::distance(predictions.begin(), std::max_element(predictions.begin(), predictions.end()));
+    sum += this->_biasNeuron;
+    prediction.push_back(reluFunction(sum));
+
+    return prediction;
+    // returns a vector of n = size probalities that is equal to 1 when summed
 }
 
 void Layer::feedForward(Layer &previousLayer, int mode)
@@ -166,9 +164,9 @@ void Layer::backPropagation(std::vector<Layer> layers, std::vector<std::vector<f
         {
             if (i == layers.size() - 1) // output layer
             {
-                int prediction = calculatePrediction(layers[i].getNeurons()[j].getWeights());
+                std::vector<float> prediction = calculatePrediction(inputs[i], layers[i].getNeurons()[j].getWeights());
                 // calculate gradient of output layer
-                float error = prediction - (j + 1);
+                float error = prediction[0] - (j + 1);
                 for (int l = 0; l < layers[i].getNeurons()[j].getWeights().size(); l++)
                 {
                     float gradient = error * (j + 1);

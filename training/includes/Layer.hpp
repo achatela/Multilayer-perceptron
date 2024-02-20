@@ -23,7 +23,7 @@ public:
     std::vector<float> softmaxFunction(std::vector<std::vector<float>> inputs);
     float reluFunction(float x);
 
-    int calculatePrediction(std::vector<float> weights);
+    std::vector<float> calculatePrediction(std::vector<float> inputs, std::vector<float> weights, int size);
 
     void debugNeuronsActivated();
 
