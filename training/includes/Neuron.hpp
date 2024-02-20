@@ -21,6 +21,8 @@ public:
     std::vector<float> &getWeights() { return this->_weights; };
     void setWeights(std::vector<float> weights) { this->_weights = weights; };
 
+    void setOneWeight(float weight, int index) { this->_weights[index] = weight; };
+
     std::vector<float> &getInputs() { return this->_inputs; };
     void setInputs(std::vector<float> inputs) { this->_inputs = inputs; };
 

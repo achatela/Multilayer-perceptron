@@ -58,11 +58,11 @@ std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs
     {
         exponentials.push_back(0);
         float max_input = 0;
-        // for (float val : input)
-        // {
-        //     if (val > max_input)
-        //         max_input = val;
-        // }
+        for (float val : input)
+        {
+            if (val > max_input)
+                max_input = val;
+        }
 
         // Calculate the sum of exponentials
         for (float val : input)
@@ -70,7 +70,7 @@ std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs
             float exponential = exp(val - max_input);
             exponentials[exponentials.size() - 1] += exponential;
         }
-        sum = exp(exponentials[exponentials.size() - 1]);
+        sum += exponentials[exponentials.size() - 1];
     }
     // Calculate softmax output
     for (float exp_val : exponentials)
@@ -84,6 +84,24 @@ std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs
     std::cout << std::endl;
 
     return outputs;
+}
+
+int Layer::calculatePrediction(std::vector<float> weights)
+{
+    std::vector<int> predictions;
+    std::vector<float> exponentials;
+    float sum = 0.0;
+
+    for (int i = 0; i < weights.size(); i++)
+    {
+        exponentials.push_back(exp(weights[i]));
+        sum += exponentials[i];
+    }
+    for (int i = 0; i < exponentials.size(); i++)
+    {
+        predictions.push_back(exponentials[i] / sum);
+    }
+    return std::distance(predictions.begin(), std::max_element(predictions.begin(), predictions.end()));
 }
 
 void Layer::feedForward(Layer &previousLayer, int mode)
@@ -140,23 +158,6 @@ void Layer::debugNeuronsActivated()
     std::cout << "Number of activated neurons: " << number << std::endl;
 }
 
-std::vector<float> Layer::calculatePrediction(std::vector<std::vector<float>> inputs, std::vector<float> weights)
-{
-    std::vector<float> hypothesis;
-
-    for (int i = 0; i < inputs.size(); i++)
-    {
-        float sum = 0;
-        for (int j = 1; j < inputs[i].size(); j++)
-        {
-            sum += inputs[i][j] * weights[j];
-        }
-        // use softmax function to get the predicted class
-        hypothesis.push_back(sum);
-    }
-    return hypothesis;
-}
-
 void Layer::backPropagation(std::vector<Layer> layers, std::vector<std::vector<float>> inputs, float learningRate)
 {
     for (int i = layers.size() - 1; i > -1; i--)
@@ -165,16 +166,14 @@ void Layer::backPropagation(std::vector<Layer> layers, std::vector<std::vector<f
         {
             if (i == layers.size() - 1) // output layer
             {
-                std::vector<float> prediction = calculatePrediction(inputs, layers[i].getNeurons()[j].getWeights());
+                int prediction = calculatePrediction(layers[i].getNeurons()[j].getWeights());
                 // calculate gradient of output layer
-                for (int k = 0; k < prediction.size(); k++)
+                float error = prediction - (j + 1);
+                for (int l = 0; l < layers[i].getNeurons()[j].getWeights().size(); l++)
                 {
-                    float error = prediction[k] - inputs[k][0];
-                    for (int l = 0; l < layers[i].getNeurons()[j].getWeights().size(); l++)
-                    {
-                        float gradient = error * inputs[k][l];
-                        layers[i].getNeurons()[j].getWeights()[l] -= learningRate * gradient;
-                    }
+                    float gradient = error * (j + 1);
+                    float updatedWeight = layers[i].getNeurons()[j].getWeights()[l] - learningRate * gradient;
+                    layers[i].getNeurons()[j].setOneWeight(updatedWeight, l);
                 }
             }
             else
@@ -187,11 +186,10 @@ void Layer::backPropagation(std::vector<Layer> layers, std::vector<std::vector<f
                     {
                         error += layers[i + 1].getNeurons()[l].getWeights()[k] * layers[i + 1].getNeurons()[l].getSlope();
                     }
-                    // std::cout << "slope before set: " << layers[i].getNeurons()[j].getSlope();
                     layers[i].getNeurons()[j].setSlope(error);
-                    // std::cout << "slope after set: " << layers[i].getNeurons()[j].getSlope() << std::endl;
                     float gradient = error * layers[i].getNeurons()[j].getInputs()[k];
-                    layers[i].getNeurons()[j].getWeights()[k] -= learningRate * gradient;
+                    float updatedWeight = layers[i].getNeurons()[j].getWeights()[k] - learningRate * gradient;
+                    layers[i].getNeurons()[j].setOneWeight(updatedWeight, k);
                 }
             }
         }
