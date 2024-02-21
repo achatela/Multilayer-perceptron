@@ -21,7 +21,7 @@ std::ifstream fileChecking(const std::string filename)
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc != 3)
     {
         std::cerr << "Usage: " << argv[0] << " <input file>" << std::endl;
         return 1;
@@ -56,7 +56,33 @@ int main(int argc, char **argv)
         inputs.push_back(row);
     }
 
-    Model model(inputs, columnNames, 2, 70);
+    std::vector<std::vector<float>> validationSet;
+    if (argc == 3)
+    {
+        std::ifstream file = fileChecking(argv[2]);
+        std::string line;
+        while (std::getline(file, line))
+        {
+            std::vector<float> row;
+            std::stringstream ss(line);
+            std::string token;
+            while (std::getline(ss, token, ','))
+            {
+                if (token == "B" || token == "M")
+                {
+                    if (token == "M")
+                        row.push_back(0);
+                    else
+                        row.push_back(1);
+                    continue;
+                }
+                row.push_back(std::stof(token));
+            }
+            validationSet.push_back(row);
+        }
+    }
+
+    Model model(inputs, columnNames, validationSet, 2, 100);
     std::vector<std::vector<std::vector<float>>> classesInputs = model.getClassesInputs();
 
     int count = 0;

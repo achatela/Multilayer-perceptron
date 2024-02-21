@@ -99,7 +99,6 @@ std::vector<float> Layer::calculatePrediction(std::vector<float> inputs, std::ve
     prediction.push_back(reluFunction(sum));
 
     return prediction;
-    // returns a vector of n = size probalities that is equal to 1 when summed
 }
 
 void Layer::feedForward(Layer &previousLayer, int mode)
@@ -197,6 +196,18 @@ float Layer::singleSoftmax(std::vector<std::vector<float>> weights, std::vector<
         }
     }
     return outputs[index];
+}
+
+float Layer::getValidationLoss(std::vector<std::vector<float>> validationSet, std::vector<std::vector<float>> finalWeights)
+{
+    float loss = 0;
+    for (auto &input : validationSet)
+    {
+        float predi = singleSoftmax(finalWeights, input);
+        loss += -(input[0] * log(predi) + (1 - input[0]) * log(1 - predi));
+    }
+    loss = (1.0 / validationSet.size()) * loss;
+    return loss;
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate)
