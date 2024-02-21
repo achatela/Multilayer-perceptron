@@ -15,7 +15,7 @@ public:
     ~Layer();
 
     void feedForward(Layer &previousLayer, int mode);
-    void backPropagation(std::vector<Layer> layers, std::vector<std::vector<float>> inputs, float learningRate);
+    void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     float getBiasNeuron() { return this->_biasNeuron; };
@@ -26,6 +26,8 @@ public:
     std::vector<float> calculatePrediction(std::vector<float> inputs, std::vector<float> weights, int size);
 
     void debugNeuronsActivated();
+
+    float singleSoftmax(std::vector<std::vector<float>>, std::vector<float> inputs);
 
 private:
     float _biasNeuron;

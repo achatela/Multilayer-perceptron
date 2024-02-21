@@ -2,7 +2,7 @@
 
 Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, int hiddenLayersNumber = 2, int epochs = 100) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
-    int neuronsNumber = 8;
+    int neuronsNumber = 2;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
@@ -11,8 +11,7 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
     }
     this->_hiddenLayers.push_back(this->_outputLayer);
     setClassesInputs(inputs);
-    // for (int i = 0; i < epochs; i++)
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < epochs; i++)
     {
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
@@ -21,8 +20,15 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             else
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
-        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 0.1);
+        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 0.05);
+        std::cout << "epoch " << i << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getNeurons()[0].getLoss() << std::endl;
     }
+    std::vector<std::vector<float>> finalWeights;
+    for (auto &output : this->_hiddenLayers.back().getNeurons())
+    {
+        finalWeights.push_back(output.getWeights());
+    }
+    setFinalWeights(finalWeights);
 }
 
 Model::~Model()
@@ -43,4 +49,52 @@ void Model::setClassesInputs(std::vector<std::vector<float>> inputs)
         }
         _classesInputs[inputs[i][0]].push_back(tmp);
     }
+}
+
+int Model::predictClass(std::vector<float> inputs)
+{
+    std::vector<std::vector<float>> weights = getFinalWeights();
+    std::vector<float> outputs;
+    std::vector<float> exponentials;
+    float sum = 0.0;
+
+    for (auto &weight : weights)
+    {
+        float exponential = 0;
+        float max_input = 0;
+        for (float val : inputs)
+        {
+            if (val > max_input)
+                max_input = val;
+        }
+
+        for (int i = 0; i < inputs.size(); i++)
+        {
+            exponential += exp(inputs[i] * weight[i] - max_input);
+        }
+        exponentials.push_back(exponential);
+        sum += exponential;
+    }
+    for (int i = 0; i < exponentials.size(); i++)
+    {
+        outputs.push_back(exponentials[i] / sum);
+    }
+
+    int index = 0;
+    float max = 0;
+    for (int i = 0; i < outputs.size(); i++)
+    {
+        if (outputs[i] > max)
+        {
+            max = outputs[i];
+            index = i;
+        }
+    }
+    // for (auto &proba : outputs)
+    // {
+    //     std::cout << proba << " ";
+    // }
+    // std::cout << std::endl;
+
+    return index;
 }

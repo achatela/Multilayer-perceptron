@@ -17,6 +17,7 @@ public:
     void heInitialization(int sizePreviousLayer, int featureNumber);
 
     float &getBias() { return this->_bias; };
+    void setBias(float bias) { this->_bias = bias; };
 
     std::vector<float> &getWeights() { return this->_weights; };
     void setWeights(std::vector<float> weights) { this->_weights = weights; };
@@ -32,15 +33,25 @@ public:
     void setActivated(bool activated) { this->_activated = activated; };
     bool getActivated() { return this->_activated; };
 
+    void setSlope(float slope) { this->slope = slope; };
     float getSlope() { return slope; };
+
+    void setIntercept(float intercept) { this->intercept = intercept; };
     float getIntercept() { return intercept; };
 
-    void setSlope(float slope) { this->slope = slope; };
-    void setIntercept(float intercept) { this->intercept = intercept; };
-
     void setClassPredicted(int classPredicted) { this->classPredicted = classPredicted; };
+    int getClassPredicted() { return this->classPredicted; };
+
+    void setSoftmaxResults(std::vector<float> softmaxResults) { this->softmaxResults = softmaxResults; };
+    std::vector<float> getSoftmaxResults() { return this->softmaxResults; };
+
+    void setLoss(float loss) { this->loss = loss; };
+    float getLoss() { return this->loss; };
 
 private:
+    std::vector<float> softmaxResults;
+    float loss;
+
     float _bias;
     std::vector<float> _weights;
     std::vector<float> _inputs;

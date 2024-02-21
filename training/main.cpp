@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         {
             if (token == "B" || token == "M")
             {
-                if (token == "B")
+                if (token == "M")
                     row.push_back(0);
                 else
                     row.push_back(1);
@@ -56,6 +56,26 @@ int main(int argc, char **argv)
         inputs.push_back(row);
     }
 
-    Model model(inputs, columnNames, 2, 100);
-    auto inputLayer = model.getInputLayer();
+    Model model(inputs, columnNames, 2, 70);
+    std::vector<std::vector<std::vector<float>>> classesInputs = model.getClassesInputs();
+
+    int count = 0;
+    int zero = 0;
+    int one = 0;
+    for (int i = 0; i < classesInputs.size(); i++)
+    {
+        for (int j = 0; j < classesInputs[i].size(); j++)
+        {
+            int answer = model.predictClass(classesInputs[i][j]);
+            if (answer == 0)
+                zero++;
+            else
+                one++;
+            if (answer == i)
+                count++;
+        }
+    }
+    std::cout << "Zero: " << zero << std::endl;
+    std::cout << "One: " << one << std::endl;
+    std::cout << "Accuracy: " << (float)count / inputs.size() << std::endl;
 }
