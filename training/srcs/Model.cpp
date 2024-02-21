@@ -27,7 +27,7 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             finalWeights.push_back(output.getWeights());
         }
         float validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
-        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getNeurons()[0].getLoss() << " - val_loss:" << validation_loss << std::endl;
+        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getLoss() << " - val_loss:" << validation_loss << std::endl;
     }
     std::vector<std::vector<float>> finalWeights;
     for (auto &output : this->_hiddenLayers.back().getNeurons())

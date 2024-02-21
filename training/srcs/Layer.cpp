@@ -113,7 +113,6 @@ void Layer::feedForward(Layer &previousLayer, int mode)
         {
             this->_neurons[i].setInputs(outputs);
             this->_neurons[i].setActivated(true);
-            std::cout << sum << std::endl;
             if (sum < 0) // relu activation
                 this->_neurons[i].setActivated(false);
         }
@@ -145,7 +144,7 @@ void Layer::debugNeuronsActivated()
     std::cout << "Number of activated neurons: " << number << std::endl;
 }
 
-float Layer::singleSoftmax(std::vector<std::vector<float>> weights, std::vector<float> inputs)
+std::vector<float> Layer::singleSoftmax(std::vector<std::vector<float>> weights, std::vector<float> inputs)
 {
     std::vector<float> outputs;
     std::vector<float> exponentials;
@@ -183,7 +182,7 @@ float Layer::singleSoftmax(std::vector<std::vector<float>> weights, std::vector<
             index = i;
         }
     }
-    return outputs[index];
+    return outputs;
 }
 
 float Layer::getValidationLoss(std::vector<std::vector<float>> validationSet, std::vector<std::vector<float>> finalWeights)
@@ -191,10 +190,14 @@ float Layer::getValidationLoss(std::vector<std::vector<float>> validationSet, st
     float loss = 0;
     for (auto &input : validationSet)
     {
-        float predi = singleSoftmax(finalWeights, input);
-        loss += -(input[0] * log(predi) + (1 - input[0]) * log(1 - predi));
+        std::vector<float> predi = singleSoftmax(finalWeights, input);
+        for (int i = 0; i < predi.size(); i++)
+        {
+            loss += (input[0] * log(predi[i]));
+            // loss += -(input[0] * log(predi[i]) + (1 - input[0]) * log(1 - predi[i]));
+        }
     }
-    loss = (1.0 / validationSet.size()) * loss;
+    loss = -(1.0 / validationSet.size()) * loss;
     return loss;
 }
 
@@ -215,17 +218,25 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
         // gradients.clear();
         for (int j = 0; j < layers[i].getNeurons().size(); j++)
         {
-            loss = 0;
             if (i == layers.size() - 1) // output layer
             {
                 for (auto &input : inputs)
                 {
-                    float predi = singleSoftmax(weightsOutputLayer, input);
-                    // binary cross entropy
-                    loss += -(input[0] * log(predi) + (1 - input[0]) * log(1 - predi));
+                    std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
+                    for (int k = 0; k < predi.size(); k++)
+                    {
+                        loss += (input[0] * log(predi[k]));
+                        // loss += (input[0] * log(predi[k]) + (1 - input[0]) * log(1 - predi[k]));
+                    }
                 }
-                loss = (1.0 / inputs.size()) * loss;
-                layers[i].setLoss(layers[i].getLoss() + loss);
+                loss = -(1.0 / inputs.size()) * loss;
+                std::cout << layers[i].getLoss() + loss << std::endl;
+                if (layers[i].getLoss() == 0)
+                    layers[i].setLoss(layers[i].getLoss() + loss);
+                else
+                    layers[i].setLoss((layers[i].getLoss() + loss) / 2);
+                loss = 0;
+                std::cout << "loss :" << layers[i].getLoss() << std::endl;
                 if (j == layers[i].getNeurons().size() - 1)
                 {
                     layers[i].setLoss((1.0 / inputs.size()) * layers[i].getLoss());
@@ -235,7 +246,8 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
                         float gradient = 0;
                         for (auto &input : inputs)
                         {
-                            gradient += (singleSoftmax(weightsOutputLayer, input) - input[0]) * input[k];
+                            std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
+                            gradient += (predi[j] - input[0]) * input[k];
                         }
                         gradient = (1.0 / inputs.size()) * gradient;
                         gradients.push_back(gradient);

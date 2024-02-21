@@ -27,7 +27,7 @@ public:
 
     void debugNeuronsActivated();
 
-    float singleSoftmax(std::vector<std::vector<float>>, std::vector<float> inputs);
+    std::vector<float> singleSoftmax(std::vector<std::vector<float>>, std::vector<float> inputs);
     float getValidationLoss(std::vector<std::vector<float>> validationSet, std::vector<std::vector<float>> finalWeights);
 
     void setLoss(float loss) { this->loss = loss; };
