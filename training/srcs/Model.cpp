@@ -2,7 +2,7 @@
 
 Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
-    int neuronsNumber = 8;
+    int neuronsNumber = 4;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
