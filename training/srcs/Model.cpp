@@ -2,7 +2,7 @@
 
 Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
-    int neuronsNumber = 4;
+    int neuronsNumber = 6;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
@@ -20,14 +20,14 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             else
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
-        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 1);
+        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 0.2);
         std::vector<std::vector<float>> finalWeights;
         for (auto &output : this->_hiddenLayers.back().getNeurons())
         {
             finalWeights.push_back(output.getWeights());
         }
         float validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
-        std::cout << "epoch " << i << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getNeurons()[0].getLoss() << " - val_loss:" << validation_loss << std::endl;
+        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getNeurons()[0].getLoss() << " - val_loss:" << validation_loss << std::endl;
     }
     std::vector<std::vector<float>> finalWeights;
     for (auto &output : this->_hiddenLayers.back().getNeurons())
