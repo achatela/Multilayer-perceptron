@@ -4,14 +4,14 @@ Neuron::Neuron(int sizePreviousLayer, int featureNumber)
 {
     heInitialization(sizePreviousLayer, featureNumber);
     // this->_bias = (float)rand() / (float)RAND_MAX;
-    this->_bias = 1;
+    this->_bias = 0.01;
 }
 
 Neuron::Neuron(std::vector<float> inputs, int featureNumber)
 {
     _inputs = inputs;
     // this->_bias = (float)rand() / (float)RAND_MAX;
-    this->_bias = 1;
+    this->_bias = 0.01;
 }
 
 Neuron::~Neuron()

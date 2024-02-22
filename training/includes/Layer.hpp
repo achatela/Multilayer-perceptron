@@ -33,9 +33,13 @@ public:
     void setLoss(float loss) { this->loss = loss; };
     float getLoss() { return this->loss; };
 
+    void setGradients(std::vector<float> gradients) { this->gradients = gradients; };
+    std::vector<float> getGradients() { return this->gradients; };
+
 private:
     float loss;
     float _biasNeuron;
     std::vector<Neuron> _neurons;
     float _numClasses = 2; // TODO caculate this value in the main
+    std::vector<float> gradients;
 };

@@ -45,12 +45,12 @@ public:
     void setSoftmaxResults(std::vector<float> softmaxResults) { this->softmaxResults = softmaxResults; };
     std::vector<float> getSoftmaxResults() { return this->softmaxResults; };
 
-    void setLoss(float loss) { this->loss = loss; };
-    float getLoss() { return this->loss; };
+    void setError(float error) { this->error = error; };
+    float getError() { return this->error; };
 
 private:
     std::vector<float> softmaxResults;
-    float loss;
+    float error;
 
     float _bias;
     std::vector<float> _weights;
