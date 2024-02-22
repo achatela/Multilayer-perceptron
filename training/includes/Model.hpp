@@ -7,7 +7,7 @@ class Model
 {
 
 public:
-    Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber, int epochs);
+    Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber, int epochs, float learningRate);
     ~Model();
 
     std::vector<std::vector<float>> &getInputLayer() { return this->_inputLayer; };

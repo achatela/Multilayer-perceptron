@@ -21,9 +21,9 @@ std::ifstream fileChecking(const std::string filename)
 
 int main(int argc, char **argv)
 {
-    if (argc != 3)
+    if (argc != 5)
     {
-        std::cerr << "Usage: " << argv[0] << " <input file>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <input file> <training_dataset> <n of epochs> <learning_rate>" << std::endl;
         return 1;
     }
     std::ifstream file = fileChecking(argv[1]);
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Model model(inputs, columnNames, validationSet, 2, 100);
+    Model model(inputs, columnNames, validationSet, 2, atoi(argv[3]), atof(argv[4]));
     std::vector<std::vector<std::vector<float>>> classesInputs = model.getClassesInputs();
 
     int count = 0;

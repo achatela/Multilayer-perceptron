@@ -1,8 +1,8 @@
 #include "../includes/Model.hpp"
 
-Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
+Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, float learningRate = 0.1) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
-    int neuronsNumber = 6;
+    int neuronsNumber = 4;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
@@ -20,7 +20,7 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
             else
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
-        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, 0.2);
+        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, learningRate);
         std::vector<std::vector<float>> finalWeights;
         for (auto &output : this->_hiddenLayers.back().getNeurons())
         {
