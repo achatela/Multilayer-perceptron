@@ -198,6 +198,7 @@ std::vector<float> Layer::singleSoftmax(std::vector<std::vector<float>> weights,
             index = i;
         }
     }
+
     return outputs;
 }
 
@@ -233,7 +234,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
     std::vector<float> gradients;
 
     layers[layers.size() - 1].setLoss(0);
-    for (int i = layers.size() - 1; i > -1; i--)
+    for (int i = layers.size() - 1; i > 0; i--)
     {
         for (int j = 0; j < layers[i].getNeurons().size(); j++)
         {
@@ -267,7 +268,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
                             }
                             // highestProbability += 1;
                             // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
-                            gradient += input[0] * (predi[j] - input[j]) * (predi[j] * (1 - predi[j]));
+                            gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
                         }
                         gradient /= inputs.size();
                         gradients.push_back(gradient);
@@ -301,7 +302,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
 
                     for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
                     {
-                        float gradient = 0;
+                        float gradient = 0.0;
                         for (auto &input : inputs)
                         {
                             std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
@@ -311,9 +312,11 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<
                                 if (predi[l] > predi[highestProbability])
                                     highestProbability = l;
                             }
+                            if (predi[0] == 0 || predi[1] == 0)
+                                std::cout << predi[0] << " " << predi[1] << std::endl;
                             // highestProbability += 1;
                             // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
-                            gradient += input[0] * (predi[j] - input[j]) * (predi[j] * (1 - predi[j]));
+                            gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
                         }
                         gradient /= inputs.size();
                         gradients.push_back(gradient);
