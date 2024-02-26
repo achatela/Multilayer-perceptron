@@ -14,7 +14,7 @@ public:
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, bool isOutputLayer);
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode);
+    void feedForward(Layer &previousLayer, int mode, int layerCount);
     void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };

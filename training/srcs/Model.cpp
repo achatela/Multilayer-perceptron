@@ -16,9 +16,11 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
             if (j == this->_hiddenLayers.size() - 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, 1);
+            else if (j == 1)
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, 0);
             else
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, 1);
         }
         this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, learningRate);
         std::vector<std::vector<float>> finalWeights;
