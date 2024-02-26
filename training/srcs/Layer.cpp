@@ -112,7 +112,7 @@ void Layer::feedForward(Layer &previousLayer, int mode, int layerCount)
             {
                 // float computed = (previousNeuronsInputs[k] * _neurons[i].getWeights()[k]) + previousLayer.getBiasNeuron();
                 float computed = 0;
-                if (layerCount == 0)
+                if (layerCount != -10)
                     computed = _neurons[i].getWeights()[k] * previousNeuronsInputs[k]; //+ previousLayer.getBiasNeuron();
                 else
                     computed = _neurons[i].getWeights()[k];
