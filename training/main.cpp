@@ -82,7 +82,6 @@ int main(int argc, char **argv)
         }
     }
     std::cout << "Validation set size: " << validationSet.size() << std::endl;
-    std::cout << inputs[1][0] << std::endl;
     Model model(inputs, columnNames, validationSet, 2, atoi(argv[3]), atof(argv[4]));
     std::vector<std::vector<std::vector<float>>> classesInputs = model.getClassesInputs();
 

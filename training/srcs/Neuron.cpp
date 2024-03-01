@@ -1,26 +1,26 @@
 #include "../includes/Neuron.hpp"
 
+// for the output layer
 Neuron::Neuron()
 {
     // this->_bias = (float)rand() / (float)RAND_MAX;
     this->_bias = 0.01;
 }
 
-Neuron::Neuron(int sizePreviousLayer, int featureNumber, int neuronsNumber)
+// for the hidden layers and output layer
+Neuron::Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber)
 {
-    for (int i = 0; i < neuronsNumber; ++i)
+    for (int i = 0; i < weightsNumber; ++i)
         _weights.push_back(std::vector<float>());
     heInitialization(sizePreviousLayer, featureNumber);
     // this->_bias = (float)rand() / (float)RAND_MAX;
     this->_bias = 0.01;
 }
 
-Neuron::Neuron(std::vector<float> inputs, int featureNumber, int neuronsNumber)
+// for the input layer
+Neuron::Neuron(std::vector<float> inputs, int featureNumber)
 {
     _inputs = inputs;
-    for (int i = 0; i < featureNumber; ++i)
-        _weights.push_back(std::vector<float>());
-    heInitialization(neuronsNumber, featureNumber);
     // this->_bias = (float)rand() / (float)RAND_MAX;
     this->_bias = 0.01;
 }

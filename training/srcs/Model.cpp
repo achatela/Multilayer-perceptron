@@ -3,13 +3,16 @@
 Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, float learningRate = 0.1) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
     int neuronsNumber = 4;
-    this->_hiddenLayers.push_back(Layer(this->_inputLayer, neuronsNumber));
+    this->_hiddenLayers.push_back(Layer(this->_inputLayer));
+    int weightsNumber = inputs.size();
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
-        this->_hiddenLayers.push_back(Layer(neuronsNumber, this->_inputLayer.size(), this->_columnNames.size()));
+        this->_hiddenLayers.push_back(Layer(neuronsNumber, weightsNumber, this->_columnNames.size(), weightsNumber));
+        weightsNumber = neuronsNumber;
         neuronsNumber /= 2;
     }
-    this->_hiddenLayers.push_back(this->_outputLayer);
+    this->_hiddenLayers.push_back(Layer(2, weightsNumber, this->_columnNames.size(), weightsNumber, true)); // TODO change 2 to be the number of classes detected in the dataset
+    // this->_hiddenLayers.push_back(this->_outputLayer);
     setClassesInputs(inputs);
     for (int i = 0; i < epochs; i++)
     {
@@ -28,8 +31,8 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
         // {
         //     finalWeights.push_back(output.getWeights());
         // }
-        float validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
-        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getLoss() << " - val_loss:" << validation_loss << std::endl;
+        // float validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
+        // std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getLoss() << " - val_loss:" << validation_loss << std::endl;
     }
     std::vector<std::vector<float>> finalWeights;
     // for (auto &output : this->_hiddenLayers.back().getNeurons())
