@@ -2,11 +2,12 @@
 #include <numeric>
 #include <strings.h>
 // for the input layer
-Layer::Layer(std::vector<std::vector<float>> inputs)
+Layer::Layer(std::vector<std::vector<float>> inputs, int neuronsNumber)
 {
+    // create weights for the next layer
     for (int i = 0; i < inputs.size(); i++)
     {
-        Neuron neuron(inputs[i], inputs[i].size());
+        Neuron neuron(inputs[i], inputs[i].size(), neuronsNumber);
         neuron.setActivated(true);
         _neurons.push_back(neuron);
     }
@@ -18,7 +19,7 @@ Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber)
 {
     for (int i = 0; i < neuronsNumber; i++)
     {
-        Neuron neuron(sizePreviousLayer, featureNumber);
+        Neuron neuron(sizePreviousLayer, featureNumber, neuronsNumber / 2);
         _neurons.push_back(neuron);
     }
     this->_biasNeuron = 0.01;
@@ -29,7 +30,7 @@ Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, bool i
 {
     for (int i = 0; i < neuronsNumber; i++)
     {
-        Neuron neuron(sizePreviousLayer, featureNumber);
+        Neuron neuron;
         neuron.setClassPredicted(i);
         neuron.setActivated(true);
         _neurons.push_back(neuron);
@@ -85,68 +86,6 @@ std::vector<float> Layer::softmaxFunction(std::vector<std::vector<float>> inputs
     // std::cout << std::endl;
 
     return outputs;
-}
-
-void Layer::feedForward(Layer &previousLayer, int mode, int layerCount)
-{
-
-    for (int i = 0; i < this->_neurons.size(); i++) // in every neuron of the actual layer
-    {
-        std::cout << "Neuron " << i << " sums:";
-        float sum = 0;
-        std::vector<float> outputs(32, 0);                          // TODO: calculate the size of the outputs
-        for (int j = 0; j < previousLayer.getNeurons().size(); j++) // for every neuron of the previous layer
-        {
-
-            if (previousLayer.getNeurons()[j].getActivated() == false) // if the previous neuron is not activated, we skip it
-            {
-                // sum += previousLayer.getBiasNeuron();
-                // this->_neurons[i].setOutput(-1);
-                continue;
-            }
-
-            std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
-
-            outputs[0] = previousNeuronsInputs[0];                     // the first element is the answer
-            for (int k = 1; k < previousNeuronsInputs.size() + 1; k++) // start from 1 because the first element is the answer
-            {
-                // float computed = (previousNeuronsInputs[k] * _neurons[i].getWeights()[k]) + previousLayer.getBiasNeuron();
-                float computed = 0;
-                if (layerCount != -10)
-                    computed = _neurons[i].getWeights()[k] * previousNeuronsInputs[k]; //+ previousLayer.getBiasNeuron();
-                else
-                    computed = _neurons[i].getWeights()[k];
-                outputs[k] += computed;
-                sum += computed;
-            }
-        }
-        sum += previousLayer.getBiasNeuron();
-        std::cout << sum << std::endl;
-        if (outputs[1] != 0)
-            this->getNeurons()[i].setInputs(outputs);
-
-        if (mode == 1) // hidden layers
-        {
-            this->_neurons[i].setOutput(sum);
-            this->_neurons[i].setActivated(false);
-            if (sum > 0) // relu activation
-                this->_neurons[i].setActivated(true);
-        }
-        else if (mode == 2 && i == 0) // output layer first neuron
-        // use softMax in every neurons but inputs[0] should be the weights of the actual neuron
-        {
-            std::vector<std::vector<float>> inputs;
-            for (int i = 0; i < this->_neurons.size(); i++)
-            {
-                inputs.push_back(this->_neurons[i].getWeights());
-            }
-
-            std::vector<float> result = softmaxFunction(inputs);
-            this->_neurons[i].setSoftmaxResults(result);
-        }
-    }
-    if (mode == 1)
-        debugNeuronsActivated();
 }
 
 void Layer::debugNeuronsActivated()
@@ -215,132 +154,283 @@ float Layer::getValidationLoss(std::vector<std::vector<float>> validationSet, st
     return loss;
 }
 
+void Layer::inputLayerFeedForward(Layer &previousLayer)
+{
+    for (int i = 0; i < this->_neurons.size(); i++)
+    {
+        float sum = 0;
+        std::vector<Neuron> neurons = previousLayer.getNeurons();
+        int activated = 0;
+
+        for (int j = 0; j < neurons.size(); j++)
+            for (int k = 0; k < neurons[j].getWeights(i).size(); k++)
+                sum += neurons[j].getWeights(i)[k] * neurons[j].getInputs()[k];
+
+        sum += previousLayer.getBiasNeuron();
+        this->_neurons[i].setActivated(false);
+        if (sum > 0)
+        {
+            activated = sum;
+            this->_neurons[i].setActivated(true);
+        }
+        this->_neurons[i].setOutput(activated);
+    }
+    debugNeuronsActivated();
+}
+
+void Layer::hiddenLayerFeedForward(Layer &previousLayer)
+{
+    for (int i = 0; i < this->_neurons.size(); i++)
+    {
+        float sum = 0;
+        std::vector<Neuron> neurons = previousLayer.getNeurons();
+        int activated = 0;
+
+        for (int j = 0; j == neurons.size(); j++)
+        {
+            if (neurons[j].getActivated() == false)
+                continue;
+            for (int k = 0; k < neurons[j].getWeights(i).size(); k++)
+                sum += neurons[j].getWeights(i)[k] * neurons[j].getInputs()[k];
+        }
+
+        sum += previousLayer.getBiasNeuron();
+        this->_neurons[i].setActivated(false);
+        if (sum > 0)
+        {
+            activated = sum;
+            this->_neurons[i].setActivated(true);
+        }
+        this->_neurons[i].setOutput(activated);
+    }
+    debugNeuronsActivated();
+}
+
+void Layer::outputLayerFeedForward(Layer &previousLayer)
+{
+    for (int i = 0; i < this->_neurons.size(); i++)
+    {
+        float sum = 0;
+        std::vector<Neuron> neurons = previousLayer.getNeurons();
+        int activated = 0;
+
+        for (int j = 0; j == neurons.size(); j++)
+        {
+            if (neurons[j].getActivated() == false)
+                continue;
+            for (int k = 0; k < neurons[j].getWeights(i).size(); k++)
+                sum += neurons[j].getWeights(i)[k] * neurons[j].getInputs()[k];
+        }
+
+        sum += previousLayer.getBiasNeuron();
+        this->_neurons[i].setActivated(false);
+        if (sum > 0)
+        {
+            activated = sum;
+            this->_neurons[i].setActivated(true);
+        }
+        this->_neurons[i].setOutput(activated);
+    }
+    debugNeuronsActivated();
+}
+
+void Layer::feedForward(Layer &previousLayer, int mode)
+{
+    if (mode == 0)
+        this->inputLayerFeedForward(previousLayer);
+    else if (mode == 1)
+        this->hiddenLayerFeedForward(previousLayer);
+    else if (mode == 2)
+        this->outputLayerFeedForward(previousLayer);
+}
+
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate)
 {
-    std::vector<std::vector<float>> weightsOutputLayer;
-    for (int i = 0; i < layers.back().getNeurons().size(); i++)
-    {
-        weightsOutputLayer.push_back(layers.back().getNeurons()[i].getWeights());
-    }
-    // for (auto &weightsoutputs : weightsOutputLayer)
+    // std::vector<std::vector<float>> weightsOutputLayer;
+    // for (int i = 0; i < layers.back().getNeurons().size(); i++)
     // {
-    //     for (auto &weight : weightsoutputs)
+    //     weightsOutputLayer.push_back(layers.back().getNeurons()[i].getWeights());
+    // }
+    // // for (auto &weightsoutputs : weightsOutputLayer)
+    // // {
+    // //     for (auto &weight : weightsoutputs)
+    // //     {
+    // //         std::cout << weight << " ";
+    // //     }
+    // // }
+    // std::cout << std::endl;
+    // float loss = 0;
+    // std::vector<float> gradients;
+
+    // layers[layers.size() - 1].setLoss(0);
+    // for (int i = layers.size() - 1; i > 0; i--)
+    // {
+    //     for (int j = 0; j < layers[i].getNeurons().size(); j++)
     //     {
-    //         std::cout << weight << " ";
+    //         if (i == layers.size() - 1) // output layer
+    //         {
+    //             loss = 0;
+    //             for (int z = 0; z < inputs.size(); z++)
+    //             {
+    //                 std::vector<float> predi = singleSoftmax(weightsOutputLayer, inputs[z]);
+    //                 for (int k = 0; k < predi.size(); k++)
+    //                     loss += (inputs[z][0] * log(predi[k]));
+    //                 // loss += -log(predi[k]);
+    //             }
+    //             layers[i].setLoss(loss + layers[i].getLoss());
+    //             this->_neurons[j].setError(-(1.0 / inputs.size()) * loss);
+    //             if (j == layers[i].getNeurons().size() - 1)
+    //             {
+    //                 layers[i].setLoss(-(1.0 / inputs.size()) * layers[i].getLoss());
+    //                 // gradient with respect to the weights
+    //                 for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
+    //                 {
+    //                     float gradient = 0;
+    //                     for (auto &input : inputs)
+    //                     {
+    //                         std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
+    //                         int highestProbability = 0;
+    //                         for (int l = 0; l < predi.size(); l++)
+    //                         {
+    //                             if (predi[l] > predi[highestProbability])
+    //                                 highestProbability = l;
+    //                         }
+    //                         // highestProbability += 1;
+    //                         // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
+    //                         gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
+    //                     }
+    //                     gradient /= inputs.size();
+    //                     gradients.push_back(gradient);
+    //                 }
+
+    //                 // update the weights
+    //                 for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
+    //                 {
+    //                     layers[i].getNeurons()[j].setOneWeight(layers[i].getNeurons()[j].getWeights()[k] - (learningRate * gradients[k - 1]), k);
+    //                 }
+    //                 layers[i].setGradients(gradients);
+    //                 gradients.clear();
+    //             }
+    //         }
+    //         else if (i > 0) // hidden layers
+    //         {
+    //             gradients.clear();
+    //             for (int j = 0; j < layers[i].getNeurons().size(); j++)
+    //             {
+    //                 float error = 0;
+    //                 for (int k = 0; k < layers[i + 1].getNeurons().size(); k++)
+    //                 {
+    //                     for (int m = 1; m < layers[i + 1].getNeurons()[k].getWeights().size() + 1; m++)
+    //                     {
+    //                         error += layers[i + 1].getNeurons()[k].getError() * layers[i + 1].getNeurons()[k].getWeights()[m];
+    //                     }
+    //                 }
+    //                 error *= (layers[i].getNeurons()[j].getOutput() > 0) ? 1 : 0; // derivative of ReLU
+
+    //                 layers[i].getNeurons()[j].setError(error);
+
+    //                 for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
+    //                 {
+    //                     float gradient = 0.0;
+    //                     for (auto &input : inputs)
+    //                     {
+    //                         std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
+    //                         int highestProbability = 0;
+    //                         for (int l = 0; l < predi.size(); l++)
+    //                         {
+    //                             if (predi[l] > predi[highestProbability])
+    //                                 highestProbability = l;
+    //                         }
+    //                         if (predi[0] == 0 || predi[1] == 0)
+    //                             std::cout << predi[0] << " " << predi[1] << std::endl;
+    //                         // highestProbability += 1;
+    //                         // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
+    //                         gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
+    //                     }
+    //                     gradient /= inputs.size();
+    //                     gradients.push_back(gradient);
+    //                 }
+    //                 // update the weights
+    //                 for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
+    //                 {
+    //                     layers[i].getNeurons()[j].setOneWeight(layers[i].getNeurons()[j].getWeights()[k] - (learningRate * gradients[k - 1]), k);
+    //                 }
+    //                 layers[i].setGradients(gradients);
+    //                 gradients.clear();
+    //             }
+    //         }
     //     }
     // }
-    std::cout << std::endl;
-    float loss = 0;
-    std::vector<float> gradients;
-
-    layers[layers.size() - 1].setLoss(0);
-    for (int i = layers.size() - 1; i > 0; i--)
-    {
-        for (int j = 0; j < layers[i].getNeurons().size(); j++)
-        {
-            if (i == layers.size() - 1) // output layer
-            {
-                loss = 0;
-                for (int z = 0; z < inputs.size(); z++)
-                {
-                    std::vector<float> predi = singleSoftmax(weightsOutputLayer, inputs[z]);
-                    for (int k = 0; k < predi.size(); k++)
-                        loss += (inputs[z][0] * log(predi[k]));
-                    // loss += -log(predi[k]);
-                }
-                layers[i].setLoss(loss + layers[i].getLoss());
-                this->_neurons[j].setError(-(1.0 / inputs.size()) * loss);
-                if (j == layers[i].getNeurons().size() - 1)
-                {
-                    layers[i].setLoss(-(1.0 / inputs.size()) * layers[i].getLoss());
-                    // gradient with respect to the weights
-                    for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
-                    {
-                        float gradient = 0;
-                        for (auto &input : inputs)
-                        {
-                            std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
-                            int highestProbability = 0;
-                            for (int l = 0; l < predi.size(); l++)
-                            {
-                                if (predi[l] > predi[highestProbability])
-                                    highestProbability = l;
-                            }
-                            // highestProbability += 1;
-                            // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
-                            gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
-                        }
-                        gradient /= inputs.size();
-                        gradients.push_back(gradient);
-                    }
-
-                    // update the weights
-                    for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
-                    {
-                        layers[i].getNeurons()[j].setOneWeight(layers[i].getNeurons()[j].getWeights()[k] - (learningRate * gradients[k - 1]), k);
-                    }
-                    layers[i].setGradients(gradients);
-                    gradients.clear();
-                }
-            }
-            else if (i > 0) // hidden layers
-            {
-                gradients.clear();
-                for (int j = 0; j < layers[i].getNeurons().size(); j++)
-                {
-                    float error = 0;
-                    for (int k = 0; k < layers[i + 1].getNeurons().size(); k++)
-                    {
-                        for (int m = 1; m < layers[i + 1].getNeurons()[k].getWeights().size() + 1; m++)
-                        {
-                            error += layers[i + 1].getNeurons()[k].getError() * layers[i + 1].getNeurons()[k].getWeights()[m];
-                        }
-                    }
-                    error *= (layers[i].getNeurons()[j].getOutput() > 0) ? 1 : 0; // derivative of ReLU
-
-                    layers[i].getNeurons()[j].setError(error);
-
-                    for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
-                    {
-                        float gradient = 0.0;
-                        for (auto &input : inputs)
-                        {
-                            std::vector<float> predi = singleSoftmax(weightsOutputLayer, input);
-                            int highestProbability = 0;
-                            for (int l = 0; l < predi.size(); l++)
-                            {
-                                if (predi[l] > predi[highestProbability])
-                                    highestProbability = l;
-                            }
-                            if (predi[0] == 0 || predi[1] == 0)
-                                std::cout << predi[0] << " " << predi[1] << std::endl;
-                            // highestProbability += 1;
-                            // gradient += input[0] * (highestProbability - input[0]) * (highestProbability * (1 - highestProbability));
-                            gradient += input[0] * (predi[highestProbability] - input[0]) * (predi[highestProbability] * (1 - predi[highestProbability]));
-                        }
-                        gradient /= inputs.size();
-                        gradients.push_back(gradient);
-                    }
-                    // update the weights
-                    for (int k = 1; k < layers[i].getNeurons()[j].getWeights().size() + 1; k++)
-                    {
-                        layers[i].getNeurons()[j].setOneWeight(layers[i].getNeurons()[j].getWeights()[k] - (learningRate * gradients[k - 1]), k);
-                    }
-                    layers[i].setGradients(gradients);
-                    gradients.clear();
-                }
-            }
-        }
-    }
-    // reset every neurons activated to false
-    for (int i = 1; i < layers.size() - 1; i++)
-    {
-        for (auto &neuron : layers[i].getNeurons())
-        {
-            neuron.setActivated(false);
-        }
-    }
+    // // reset every neurons activated to false
+    // for (int i = 1; i < layers.size() - 1; i++)
+    // {
+    //     for (auto &neuron : layers[i].getNeurons())
+    //     {
+    //         neuron.setActivated(false);
+    //     }
+    // }
 }
+
+// void Layer::feedForward(Layer &previousLayer, int mode)
+// {
+
+//     for (int i = 0; i < this->_neurons.size(); i++) // in every neuron of the actual layer
+//     {
+//         float sum = 0;
+//         std::vector<float> outputs(32, 0);                          // TODO: calculate the size of the outputs
+//         for (int j = 0; j < previousLayer.getNeurons().size(); j++) // for every neuron of the previous layer
+//         {
+
+//             if (previousLayer.getNeurons()[j].getActivated() == false) // if the previous neuron is not activated, we skip it
+//             {
+//                 sum += previousLayer.getBiasNeuron();
+//                 this->_neurons[i].setOutput(0);
+//                 continue;
+//             }
+
+//             std::vector<float> previousNeuronsInputs = previousLayer.getNeurons()[j].getInputs();
+
+//             outputs[0] = previousNeuronsInputs[0];                     // the first element is the answer
+//             for (int k = 1; k < previousNeuronsInputs.size() + 1; k++) // start from 1 because the first element is the answer
+//             {
+//                 // float computed = (previousNeuronsInputs[k] * _neurons[i].getWeights()[k]) + previousLayer.getBiasNeuron();
+//                 float computed = 0;
+//                 computed = _neurons[i].getWeights()[k] * previousNeuronsInputs[k]; //+ previousLayer.getBiasNeuron();
+//                 outputs[k] += computed;
+//                 sum += computed;
+//             }
+//         }
+//         sum += previousLayer.getBiasNeuron();
+//         std::cout << sum << std::endl;
+//         if (outputs[1] != 0)
+//             this->getNeurons()[i].setInputs(outputs);
+
+//         if (mode == 1) // hidden layers
+//         {
+//             this->_neurons[i].setOutput(0);
+//             this->_neurons[i].setActivated(false);
+//             if (sum > 0) // relu activation
+//             {
+//                 this->_neurons[i].setOutput(sum);
+//                 this->_neurons[i].setActivated(true);
+//             }
+//         }
+//         else if (mode == 2 && i == 0) // output layer first neuron
+//         // use softMax in every neurons but inputs[0] should be the weights of the actual neuron
+//         {
+//             std::vector<std::vector<float>> inputs;
+//             for (int i = 0; i < this->_neurons.size(); i++)
+//             {
+//                 inputs.push_back(this->_neurons[i].getWeights());
+//             }
+
+//             std::vector<float> result = softmaxFunction(inputs);
+//             this->_neurons[i].setSoftmaxResults(result);
+//         }
+//     }
+//     if (mode == 1)
+//         debugNeuronsActivated();
+// }
 
 // void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate)
 // {

@@ -3,7 +3,7 @@
 Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<float>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, float learningRate = 0.1) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
     int neuronsNumber = 4;
-    this->_hiddenLayers.push_back(Layer(this->_inputLayer));
+    this->_hiddenLayers.push_back(Layer(this->_inputLayer, neuronsNumber));
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
         this->_hiddenLayers.push_back(Layer(neuronsNumber, this->_inputLayer.size(), this->_columnNames.size()));
@@ -16,27 +16,27 @@ Model::Model(std::vector<std::vector<float>> inputs, std::vector<std::string> co
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
             if (j == this->_hiddenLayers.size() - 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, 1);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2);
             else if (j == 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, 0);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0);
             else
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, 1);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
         }
         this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, learningRate);
         std::vector<std::vector<float>> finalWeights;
-        for (auto &output : this->_hiddenLayers.back().getNeurons())
-        {
-            finalWeights.push_back(output.getWeights());
-        }
+        // for (auto &output : this->_hiddenLayers.back().getNeurons())
+        // {
+        //     finalWeights.push_back(output.getWeights());
+        // }
         float validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
         std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getLoss() << " - val_loss:" << validation_loss << std::endl;
     }
     std::vector<std::vector<float>> finalWeights;
-    for (auto &output : this->_hiddenLayers.back().getNeurons())
-    {
-        finalWeights.push_back(output.getWeights());
-    }
-    setFinalWeights(finalWeights);
+    // for (auto &output : this->_hiddenLayers.back().getNeurons())
+    // {
+    //     finalWeights.push_back(output.getWeights());
+    // }
+    // setFinalWeights(finalWeights);
 }
 
 Model::~Model()

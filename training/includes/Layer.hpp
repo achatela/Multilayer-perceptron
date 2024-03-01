@@ -7,14 +7,14 @@ class Layer
 
 public:
     // for the input layer
-    Layer(std::vector<std::vector<float>> inputs);
+    Layer(std::vector<std::vector<float>> inputs, int neuronsNumber);
     // for the hidden layers
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber);
     // for the output layer
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, bool isOutputLayer);
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode, int layerCount);
+    void feedForward(Layer &previousLayer, int mode);
     void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
@@ -35,6 +35,10 @@ public:
 
     void setGradients(std::vector<float> gradients) { this->gradients = gradients; };
     std::vector<float> getGradients() { return this->gradients; };
+
+    void inputLayerFeedForward(Layer &previousLayer);
+    void hiddenLayerFeedForward(Layer &previousLayer);
+    void outputLayerFeedForward(Layer &previousLayer);
 
 private:
     float loss;

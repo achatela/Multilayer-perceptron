@@ -9,9 +9,11 @@ class Neuron
 
 public:
     // for the input layer
-    Neuron(std::vector<float> inputs, int featureNumber);
+    Neuron(std::vector<float> inputs, int featureNumber, int neuronsNumber);
     // for the hidden layers
-    Neuron(int sizePreviousLayer, int featureNumber);
+    Neuron(int sizePreviousLayer, int featureNumber, int neuronsNumber);
+    // for the output layer
+    Neuron();
     ~Neuron();
 
     void heInitialization(int sizePreviousLayer, int featureNumber);
@@ -19,10 +21,10 @@ public:
     float &getBias() { return this->_bias; };
     void setBias(float bias) { this->_bias = bias; };
 
-    std::vector<float> &getWeights() { return this->_weights; };
-    void setWeights(std::vector<float> weights) { this->_weights = weights; };
+    std::vector<float> &getWeights(int index) { return this->_weights[index]; };
+    void setWeights(std::vector<float> weights, int index) { this->_weights[index] = weights; };
 
-    void setOneWeight(float weight, int index) { this->_weights[index] = weight; };
+    void setOneWeight(float weight, int index, int offset) { this->_weights[index][offset] = weight; };
 
     std::vector<float> &getInputs() { return this->_inputs; };
     void setInputs(std::vector<float> inputs) { this->_inputs = inputs; };
@@ -53,7 +55,7 @@ private:
     float error;
 
     float _bias;
-    std::vector<float> _weights;
+    std::vector<std::vector<float>> _weights;
     std::vector<float> _inputs;
     float _output;
     bool _activated = false;
