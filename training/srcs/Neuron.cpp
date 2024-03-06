@@ -3,25 +3,23 @@
 // for the output layer
 Neuron::Neuron()
 {
-    // this->_bias = (float)rand() / (float)RAND_MAX;
+    // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
 }
 
 // for the hidden layers and output layer
 Neuron::Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber)
 {
-    for (int i = 0; i < weightsNumber; ++i)
-        _weights.push_back(std::vector<float>());
     heInitialization(sizePreviousLayer, featureNumber);
-    // this->_bias = (float)rand() / (float)RAND_MAX;
+    // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
 }
 
 // for the input layer
-Neuron::Neuron(std::vector<float> inputs, int featureNumber)
+Neuron::Neuron(std::vector<double> inputs, int featureNumber)
 {
     _inputs = inputs;
-    // this->_bias = (float)rand() / (float)RAND_MAX;
+    // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
 }
 
@@ -35,11 +33,8 @@ void Neuron::heInitialization(int sizePreviousLayer, int featureNumber)
     std::mt19937 gen(rd());
     std::normal_distribution<> dis(0, std::sqrt(2.0 / sizePreviousLayer));
 
-    for (int j = 0; j < _weights.size(); ++j)
+    for (int i = 0; i < featureNumber; ++i)
     {
-        for (int i = 0; i < featureNumber; ++i)
-        {
-            _weights[j].push_back(dis(gen));
-        }
+        _weights.push_back(dis(gen));
     }
 }

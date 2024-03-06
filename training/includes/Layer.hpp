@@ -7,47 +7,48 @@ class Layer
 
 public:
     // for the input layer
-    Layer(std::vector<std::vector<float>> inputs);
+    Layer(std::vector<std::vector<double>> inputs);
     // for the hidden layers
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber);
     // for the output layer
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer);
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode);
-    void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<float>> inputs, float learningRate);
+    void feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {});
+    void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<double>> inputs, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
-    float getBiasNeuron() { return this->_biasNeuron; };
+    double getBiasNeuron() { return this->_biasNeuron; };
 
-    std::vector<float> softmaxFunction(std::vector<std::vector<float>> inputs);
-    // float reluFunction(float x);
+    std::vector<double> softmaxFunction(std::vector<double> inputs);
+    // double reluFunction(double x);
 
-    std::vector<float> calculatePrediction(std::vector<float> inputs, std::vector<float> weights, int size);
+    std::vector<double> calculatePrediction(std::vector<double> inputs, std::vector<double> weights, int size);
 
     void debugNeuronsActivated();
 
-    std::vector<float> singleSoftmax(std::vector<std::vector<float>>, std::vector<float> inputs);
-    float getValidationLoss(std::vector<std::vector<float>> validationSet, std::vector<std::vector<float>> finalWeights);
+    std::vector<double> singleSoftmax(std::vector<std::vector<double>>, std::vector<double> inputs);
+    double getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<std::vector<double>> finalWeights);
 
-    void setLoss(float loss) { this->loss = loss; };
-    float getLoss() { return this->loss; };
+    void setLoss(double loss) { this->loss = loss; };
+    double getLoss() { return this->loss; };
 
-    void setGradients(std::vector<float> gradients) { this->gradients = gradients; };
-    std::vector<float> getGradients() { return this->gradients; };
+    void setGradients(std::vector<double> gradients) { this->gradients = gradients; };
+    std::vector<double> getGradients() { return this->gradients; };
 
     void inputLayerFeedForward(Layer &previousLayer);
     void hiddenLayerFeedForward(Layer &previousLayer);
-    void outputLayerFeedForward(Layer &previousLayer);
+    std::vector<double> outputLayerFeedForward(Layer &previousLayer);
 
     void applySoftmax();
+    void reluActivation(double sum, int i);
 
-    std::vector<float> softmaxWithInput(std::vector<float> inputs);
+    std::vector<double> softmaxWithInput(std::vector<double> inputs);
 
 private:
-    float loss;
-    float _biasNeuron;
+    double loss;
+    double _biasNeuron;
     std::vector<Neuron> _neurons;
-    float _numClasses = 2; // TODO caculate this value in the main
-    std::vector<float> gradients;
+    double _numClasses = 2; // TODO caculate this value in the main
+    std::vector<double> gradients;
 };

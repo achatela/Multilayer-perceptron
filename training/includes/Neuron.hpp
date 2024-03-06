@@ -9,7 +9,7 @@ class Neuron
 
 public:
     // for the input layer
-    Neuron(std::vector<float> inputs, int featureNumber);
+    Neuron(std::vector<double> inputs, int featureNumber);
     // for the hidden layers
     Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber);
     // for the output layer
@@ -18,53 +18,53 @@ public:
 
     void heInitialization(int sizePreviousLayer, int featureNumber);
 
-    float &getBias() { return this->_bias; };
-    void setBias(float bias) { this->_bias = bias; };
+    double &getBias() { return this->_bias; };
+    void setBias(double bias) { this->_bias = bias; };
 
-    std::vector<std::vector<float>> &getWeights() { return this->_weights; };
-    std::vector<float> &getWeights(int index) { return this->_weights[index]; };
-    void setWeights(std::vector<float> weights, int index) { this->_weights[index] = weights; };
+    std::vector<double> &getWeights() { return this->_weights; };
+    // std::vector<double> &getWeights(int index) { return this->_weights[index]; };
+    // void setWeights(std::vector<double> weights, int index) { this->_weights[index] = weights; };
 
-    void setOneWeight(float weight, int index, int offset) { this->_weights[index][offset] = weight; };
+    // void setOneWeight(double weight, int index, int offset) { this->_weights[index][offset] = weight; };
 
-    std::vector<float> &getInputs() { return this->_inputs; };
-    void setInputs(std::vector<float> inputs) { this->_inputs = inputs; };
+    std::vector<double> &getInputs() { return this->_inputs; };
+    void setInputs(std::vector<double> inputs) { this->_inputs = inputs; };
 
-    void setOutput(float output) { this->_output = output; };
-    float getOutput() { return this->_output; };
+    void setOutput(double output) { this->_output = output; };
+    double getOutput() { return this->_output; };
 
     void setActivated(bool activated) { this->_activated = activated; };
     bool getActivated() { return this->_activated; };
 
-    void setSlope(float slope) { this->slope = slope; };
-    float getSlope() { return slope; };
+    void setSlope(double slope) { this->slope = slope; };
+    double getSlope() { return slope; };
 
-    void setIntercept(float intercept) { this->intercept = intercept; };
-    float getIntercept() { return intercept; };
+    void setIntercept(double intercept) { this->intercept = intercept; };
+    double getIntercept() { return intercept; };
 
     void setClassPredicted(int classPredicted) { this->classPredicted = classPredicted; };
     int getClassPredicted() { return this->classPredicted; };
 
-    void setSoftmaxResults(std::vector<float> softmaxResults) { this->softmaxResults = softmaxResults; };
-    std::vector<float> getSoftmaxResults() { return this->softmaxResults; };
+    void setSoftmaxResults(std::vector<double> softmaxResults) { this->softmaxResults = softmaxResults; };
+    std::vector<double> getSoftmaxResults() { return this->softmaxResults; };
 
-    void setError(float error) { this->error = error; };
-    float getError() { return this->error; };
+    void setError(double error) { this->error = error; };
+    double getError() { return this->error; };
 
 private:
-    std::vector<float> softmaxResults;
-    float error;
+    std::vector<double> softmaxResults;
+    double error;
 
-    float _bias;
-    std::vector<std::vector<float>> _weights;
-    std::vector<float> _inputs;
-    float _output;
+    double _bias;
+    std::vector<double> _weights;
+    std::vector<double> _inputs;
+    double _output;
     bool _activated = false;
 
-    float slope = 0.01;
-    float intercept = 0.01;
+    double slope = 0.01;
+    double intercept = 0.01;
 
-    float learningRate = 0.01;
+    double learningRate = 0.01;
 
     int classPredicted;
 };

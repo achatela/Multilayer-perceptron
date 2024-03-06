@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         return 1;
     }
     std::ifstream file = fileChecking(argv[1]);
-    std::vector<std::vector<float>> inputs;
+    std::vector<std::vector<double>> inputs;
     std::vector<std::string> columnNames;
     std::string line;
     std::getline(file, line);
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     }
     while (std::getline(file, line))
     {
-        std::vector<float> row;
+        std::vector<double> row;
         std::stringstream ss(line);
         while (std::getline(ss, token, ','))
         {
@@ -56,14 +56,14 @@ int main(int argc, char **argv)
         inputs.push_back(row);
     }
 
-    std::vector<std::vector<float>> validationSet;
+    std::vector<std::vector<double>> validationSet;
     if (argc == 5)
     {
         std::ifstream file = fileChecking(argv[2]);
         std::string line;
         while (std::getline(file, line))
         {
-            std::vector<float> row;
+            std::vector<double> row;
             std::stringstream ss(line);
             std::string token;
             while (std::getline(ss, token, ','))
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     }
     std::cout << "Validation set size: " << validationSet.size() << std::endl;
     Model model(inputs, columnNames, validationSet, 2, atoi(argv[3]), atof(argv[4]));
-    std::vector<std::vector<std::vector<float>>> classesInputs = model.getClassesInputs();
+    std::vector<std::vector<std::vector<double>>> classesInputs = model.getClassesInputs();
 
     int count = 0;
     int zero = 0;
@@ -103,5 +103,5 @@ int main(int argc, char **argv)
     }
     std::cout << "Zero: " << zero << std::endl;
     std::cout << "One: " << one << std::endl;
-    std::cout << "Accuracy: " << (float)count / inputs.size() << std::endl;
+    std::cout << "Accuracy: " << (double)count / inputs.size() << std::endl;
 }
