@@ -44,6 +44,7 @@ public:
     void reluActivation(double sum, int i);
 
     std::vector<double> softmaxWithInput(std::vector<double> inputs);
+    double crossEntropyLoss(std::vector<double> probabilities, std::vector<std::vector<double>> inputs);
 
 private:
     double loss;

@@ -19,7 +19,7 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
         for (int j = 1; j < this->_hiddenLayers.size(); j++)
         {
             if (j == this->_hiddenLayers.size() - 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, inputs);
+                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, this->_inputLayer);
             else if (j == 1)
                 this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0);
             else

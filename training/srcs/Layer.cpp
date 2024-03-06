@@ -96,7 +96,7 @@ void Layer::inputLayerFeedForward(Layer &previousLayer)
 
         for (int j = 0; j < neurons.size(); j++)
             for (int k = 1; k < neurons[j].getInputs().size(); k++)
-                sum += this->_neurons[i].getWeights()[j] * neurons[j].getInputs()[k];
+                sum += this->_neurons[i].getWeights()[k] * neurons[j].getInputs()[k];
 
         sum += previousLayer.getBiasNeuron();
         reluActivation(sum, i);
@@ -134,6 +134,7 @@ std::vector<double> Layer::outputLayerFeedForward(Layer &previousLayer)
         sum += previousLayer.getBiasNeuron();
         logits.push_back(sum);
     }
+    std::cout << std::endl;
     return logits;
 }
 
@@ -155,6 +156,23 @@ void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<
 
         double error = crossEntropyLoss(probabilities, inputs);
     }
+}
+
+double Layer::crossEntropyLoss(std::vector<double> probabilities, std::vector<std::vector<double>> inputs)
+{
+    // Categorical Cross Entropy Loss Function
+
+    double loss = 0;
+    for (int i = 0; i < probabilities.size(); i++)
+    {
+        for (int j = 0; j < inputs.size(); j++)
+        {
+            loss += ((inputs[j][0]) * log(probabilities[inputs[j][0]] + 1e-15));
+        }
+    }
+    loss = -(1.0 / inputs.size()) * loss;
+    std::cout << "loss : " << loss << std::endl;
+    return loss;
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<double>> inputs, double learningRate)
