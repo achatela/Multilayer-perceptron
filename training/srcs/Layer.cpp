@@ -71,7 +71,9 @@ std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
     for (int i = 0; i < exponentials.size(); i++)
     {
         outputs.push_back(exponentials[i] / sum);
+        std::cout << outputs.back() << " ";
     }
+    std::cout << std::endl;
 
     return outputs;
 }
@@ -148,11 +150,7 @@ void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<
     {
         std::vector<double> probabilities = softmaxFunction(this->outputLayerFeedForward(previousLayer));
         for (int i = 0; i < probabilities.size(); i++)
-        {
-            std::cout << probabilities[i] << " ";
             this->_neurons[i].setOutput(probabilities[i]);
-        }
-        std::cout << std::endl;
 
         double error = crossEntropyLoss(probabilities, inputs);
     }
@@ -160,19 +158,34 @@ void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<
 
 double Layer::crossEntropyLoss(std::vector<double> probabilities, std::vector<std::vector<double>> inputs)
 {
-    // Categorical Cross Entropy Loss Function
+    // Binary Cross Entropy Loss Function
 
     double loss = 0;
-    for (int i = 0; i < probabilities.size(); i++)
+    for (int i = 0; i < inputs.size(); i++)
     {
-        for (int j = 0; j < inputs.size(); j++)
-        {
-            loss += ((inputs[j][0]) * log(probabilities[inputs[j][0]] + 1e-15));
-        }
+        double y = inputs[i][0];         // True label
+        double y_hat = probabilities[0]; // Predicted probability
+        if (y_hat == 1)
+            y_hat = 0.9999999;
+        else if (y_hat == 0)
+            y_hat = 0.0000001;
+        loss += y * log(y_hat) + (1 - y) * log(1 - y_hat);
     }
     loss = -(1.0 / inputs.size()) * loss;
     std::cout << "loss : " << loss << std::endl;
     return loss;
+
+    // double loss = 0;
+    // for (int i = 0; i < probabilities.size(); i++)
+    // {
+    //     for (int j = 0; j < inputs.size(); j++)
+    //     {
+    //         loss += (inputs[j][0] * log(probabilities[inputs[j][0]] + 1e-15));
+    //     }
+    // }
+    // loss = -(1.0 / inputs.size()) * loss;
+    // std::cout << "loss : " << loss << std::endl;
+    // return loss;
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<std::vector<double>> inputs, double learningRate)
