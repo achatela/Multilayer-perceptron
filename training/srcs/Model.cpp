@@ -2,31 +2,34 @@
 
 Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<double>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, double learningRate = 0.1) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
 {
-    int neuronsNumber = 4;
+    int neuronsNumber = 2;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     int weightsNumber = columnNames.size();
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
         this->_hiddenLayers.push_back(Layer(neuronsNumber, neuronsNumber * 2, this->_columnNames.size(), weightsNumber));
-        weightsNumber = 1;
+        weightsNumber = neuronsNumber;
         neuronsNumber /= 2;
     }
-    std::cout << this->_columnNames.size() << std::endl;
     this->_hiddenLayers.push_back(Layer(2, weightsNumber, this->_columnNames.size(), weightsNumber, true)); // TODO change 2 to be the number of classes detected in the dataset
     // this->_hiddenLayers.push_back(this->_outputLayer);
     setClassesInputs(inputs);
     for (int i = 0; i < epochs; i++)
     {
-        for (int j = 1; j < this->_hiddenLayers.size(); j++)
+        for (std::vector<double> input : inputs)
         {
-            if (j == this->_hiddenLayers.size() - 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, this->_inputLayer);
-            else if (j == 1)
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0);
-            else
-                this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1);
+            for (int j = 1; j < this->_hiddenLayers.size(); j++)
+            {
+                if (j == this->_hiddenLayers.size() - 1)
+                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, this->_inputLayer, input);
+                else if (j == 1)
+                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, this->_inputLayer, input);
+                else
+                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, this->_inputLayer, input);
+            }
+            this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
-        this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, inputs, learningRate);
+        std::cout << "epoch " << i + 1 << std::endl;
         std::vector<std::vector<double>> finalWeights;
         // for (auto &output : this->_hiddenLayers.back().getNeurons())
         // {

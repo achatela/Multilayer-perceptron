@@ -14,8 +14,8 @@ public:
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer);
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {});
-    void backPropagation(std::vector<Layer> &layers, std::vector<std::vector<double>> inputs, double learningRate);
+    void feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {}, std::vector<double> input = {});
+    void backPropagation(std::vector<Layer> &layers, std::vector<double> input, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     double getBiasNeuron() { return this->_biasNeuron; };
@@ -36,15 +36,15 @@ public:
     void setGradients(std::vector<double> gradients) { this->gradients = gradients; };
     std::vector<double> getGradients() { return this->gradients; };
 
-    void inputLayerFeedForward(Layer &previousLayer);
-    void hiddenLayerFeedForward(Layer &previousLayer);
-    std::vector<double> outputLayerFeedForward(Layer &previousLayer);
+    void firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input);
+    void hiddenLayerFeed(Layer &previousLayer);
+    std::vector<double> outputLayerFeed(Layer &previousLayer);
 
     void applySoftmax();
     void reluActivation(double sum, int i);
 
     std::vector<double> softmaxWithInput(std::vector<double> inputs);
-    double crossEntropyLoss(std::vector<double> probabilities, std::vector<std::vector<double>> inputs);
+    double crossEntropyLoss(std::vector<double> probabilities, std::vector<double> inputs);
 
 private:
     double loss;

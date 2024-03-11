@@ -51,9 +51,14 @@ public:
     void setError(double error) { this->error = error; };
     double getError() { return this->error; };
 
+    void setDelta(double delta) { this->delta = delta; };
+    double getDelta() { return this->delta; };
+
 private:
     std::vector<double> softmaxResults;
     double error;
+
+    double delta;
 
     double _bias;
     std::vector<double> _weights;
