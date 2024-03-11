@@ -7,10 +7,11 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
     int weightsNumber = columnNames.size();
     for (int i = 0; i < hiddenLayersNumber; i++)
     {
-        this->_hiddenLayers.push_back(Layer(neuronsNumber, weightsNumber, this->_columnNames.size(), weightsNumber));
-        weightsNumber = neuronsNumber;
+        this->_hiddenLayers.push_back(Layer(neuronsNumber, neuronsNumber * 2, this->_columnNames.size(), weightsNumber));
+        weightsNumber = 1;
         neuronsNumber /= 2;
     }
+    std::cout << this->_columnNames.size() << std::endl;
     this->_hiddenLayers.push_back(Layer(2, weightsNumber, this->_columnNames.size(), weightsNumber, true)); // TODO change 2 to be the number of classes detected in the dataset
     // this->_hiddenLayers.push_back(this->_outputLayer);
     setClassesInputs(inputs);
