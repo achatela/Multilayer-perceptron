@@ -174,52 +174,51 @@ double Layer::crossEntropyLoss(std::vector<double> probabilities, std::vector<do
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> target, double learningRate)
 {
-    // Calculate delta for the output layer
-    std::vector<double> probabilities;
-    for (int i = 0; i < this->_neurons.size(); i++)
-    {
-        double output = this->_neurons[i].getOutput();
-        probabilities.push_back(output);
-    }
-    double delta = (probabilities[target[0]] - target[0]) * probabilities[target[0]] * (1 - probabilities[target[0]]);
-    this->_neurons[0].setDelta(delta);
+    std::vector<double> gradients;
+    std::vector<double> y_hats;
+    double loss = this->getLoss();
 
-    // Backpropagate the delta to previous layers
-    for (int l = layers.size() - 2; l >= 0; l--)
-    {
-        Layer &layer = layers[l];
-        Layer &nextLayer = layers[l + 1];
+    Layer &outputLayer = layers.back();
+    for (int i = 0; i < outputLayer.getNeurons().size(); i++)
+        y_hats.push_back(outputLayer.getNeurons()[i].getOutput());
 
-        for (int i = 0; i < layer._neurons.size(); i++)
+    for (int i = layers.size() - 1; i > 1; i--)
+    {
+        Layer &currentLayer = layers[i];
+        Layer &previousLayer = layers[i - 1];
+        std::vector<Neuron> &currentNeurons = currentLayer.getNeurons();
+        std::vector<Neuron> &previousNeurons = previousLayer.getNeurons();
+
+        for (int j = 0; j < currentNeurons.size(); j++)
         {
-            double deltaSum = 0;
-            for (int j = 0; j < nextLayer._neurons.size(); j++)
+            for (int k = 0; k < currentNeurons[j].getWeights().size(); k++)
             {
-                deltaSum += nextLayer._neurons[j].getWeights()[i] * nextLayer._neurons[j].getDelta();
+                // derivative of the loss function with respect to the output of the current neuron
+                double gradient = 0;
+                double delta = y_hats[target[0]] - target[0];
+                gradient = delta * previousNeurons[k].getOutput();
+                // std::cout << gradient << " " << previousNeurons[k].getOutput() << std::endl;
+                // update weights
+                double old = currentNeurons[j].getWeights()[k];
+                currentNeurons[j].getWeights()[k] -= learningRate * gradient;
+                // if (old != currentNeurons[j].getWeights()[k])
+                // std::cout << "difference " << old - currentNeurons[j].getWeights()[k] << std::endl;
             }
-            double output = layer._neurons[i].getOutput();
-            // / Derivative of the activation function (softmax)
-            delta = deltaSum * output * (1 - output);
-            layer._neurons[i].setDelta(delta);
-        }
-    }
-
-    // Update weights and biases for all layers except the input layer
-    for (int l = 1; l < layers.size(); l++)
-    {
-        Layer &layer = layers[l];
-        Layer &prevLayer = layers[l - 1];
-
-        for (int i = 0; i < layer._neurons.size(); i++)
-        {
-            Neuron &neuron = layer._neurons[i];
-            for (int j = 0; j < neuron.getWeights().size(); j++)
-            {
-                double delta = neuron.getDelta();
-                double previousOutput = prevLayer._neurons[j].getOutput();
-                neuron.getWeights()[j] -= learningRate * delta * previousOutput; // Update weights
-            }
-            neuron.getBias() -= learningRate * neuron.getDelta(); // Update bias
         }
     }
 }
+
+// double gradient = 0;
+
+// gradient = (target[0] - y_hats[target[0]]) * previousNeurons[k].getOutput();
+
+// // for (int l = 0; l < y_hats.size(); l++)
+// //     gradient += ((loss / y_hats[l]) * (y_hats[l] / target[l]));
+// // std::cout << "gradient  before " << gradient << std::endl;
+// // gradient *= (currentNeurons[j].getOutput() / currentNeurons[j].getWeights()[k]);
+
+// // update weights
+// double before = currentNeurons[j].getWeights()[k];
+// currentNeurons[j].getWeights()[k] -= learningRate * gradient;
+// // if (before != currentNeurons[j].getWeights()[k])
+// // std::cout << "gradient  after " << gradient << std::endl;
