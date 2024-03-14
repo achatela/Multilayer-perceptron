@@ -20,6 +20,7 @@ public:
 
     double &getBias() { return this->_bias; };
     void setBias(double bias) { this->_bias = bias; };
+    void updateBias(double delta) { this->_bias -= delta; };
 
     std::vector<double> &getWeights() { return this->_weights; };
     // std::vector<double> &getWeights(int index) { return this->_weights[index]; };

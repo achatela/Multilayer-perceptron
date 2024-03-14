@@ -96,9 +96,7 @@ void Layer::firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input
         double sum = 0;
 
         for (int j = 0; j < input.size(); j++)
-            sum += this->_neurons[i].getWeights()[j] * input[j];
-
-        sum += previousLayer.getBiasNeuron();
+            sum += this->_neurons[i].getWeights()[j] * input[j] + this->_neurons[i].getBias();
         reluActivation(sum, i);
     }
     debugNeuronsActivated();
@@ -113,9 +111,7 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
 
         for (int j = 0; j < neurons.size(); j++)
-            sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
-
-        sum += previousLayer.getBiasNeuron();
+            sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput() + this->_neurons[i].getBias();
         reluActivation(sum, i);
     }
     debugNeuronsActivated();
@@ -131,9 +127,7 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
 
         for (int j = 0; j < neurons.size(); j++)
-            sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
-
-        sum += previousLayer.getBiasNeuron();
+            sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput() + this->_neurons[i].getBias();
         logits.push_back(sum);
     }
     // std::cout << std::endl;
@@ -195,8 +189,8 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
             double gradient = learningRate * deltaOutput[k] * layers[layers.size() - 2]._neurons[j].getOutput();
             layers.back()._neurons[k].getWeights()[j] -= gradient;
         }
-        // double biasUpdate = learningRate * deltaOutput[k];
-        // layers.back()._neurons[k].adjustBias(-biasUpdate);
+        double biasUpdate = learningRate * deltaOutput[k];
+        layers.back()._neurons[k].updateBias(biasUpdate);
     }
 
     // Calculate delta for hidden layers
@@ -206,9 +200,9 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
         for (int j = 0; j < layers[i]._neurons.size(); ++j)
         {
             double sum = 0;
-            for (int k = 0; k < layers[i + 1]._neurons.size(); ++k)
+            for (int k = 0; k < layers[i]._neurons.size(); ++k)
             {
-                sum += deltaOutput[k] * layers[i + 1]._neurons[k].getWeights()[j];
+                sum += deltaOutput[k] * layers[i]._neurons[k].getWeights()[j];
             }
             deltaHidden.push_back(sum);
         }
@@ -221,8 +215,8 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
                 double gradient = learningRate * deltaHidden[j] * layers[i - 1]._neurons[k].getOutput();
                 layers[i]._neurons[j].getWeights()[k] -= gradient;
             }
-            // double biasUpdate = learningRate * deltaHidden[j];
-            // layers[i]._neurons[j].adjustBias(-biasUpdate);
+            double biasUpdate = learningRate * deltaHidden[j];
+            layers[i]._neurons[j].updateBias(biasUpdate);
         }
         deltaOutput = deltaHidden;
     }
@@ -232,21 +226,21 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
     for (int j = 0; j < layers[1]._neurons.size(); ++j)
     {
         double sum = 0;
-        for (int k = 0; k < layers[2]._neurons.size(); ++k)
+        for (int k = 0; k < layers[1]._neurons.size(); ++k)
         {
-            sum += deltaOutput[k] * layers[2]._neurons[k].getWeights()[j];
+            sum += deltaOutput[k] * layers[1]._neurons[k].getWeights()[j];
         }
         deltaHidden.push_back(sum);
     }
 
     for (int j = 0; j < layers[1]._neurons.size(); ++j)
     {
-        for (int k = 0; k < layers[0]._neurons[0].getInputs().size(); ++k)
+        for (int k = 0; k < target.size(); ++k)
         {
             double gradient = learningRate * deltaHidden[j] * target[k];
             layers[1]._neurons[j].getWeights()[k] -= gradient;
         }
-        // double biasUpdate = learningRate * deltaHidden[j];
-        // layers[1]._neurons[j].adjustBias(-biasUpdate);
+        double biasUpdate = learningRate * deltaHidden[j];
+        layers[1]._neurons[j].updateBias(biasUpdate);
     }
 }
