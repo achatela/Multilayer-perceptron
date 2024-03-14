@@ -172,12 +172,13 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> target, double learningRate)
 {
-    // Calculate delta for output layer
+    // Calculate delta for output layer softmax derivative
     std::vector<double> deltaOutput;
     for (int k = 0; k < layers.back()._neurons.size(); ++k)
     {
         double aLk = layers.back()._neurons[k].getOutput();
-        double tk = target[k];
+        // double tk = target[0];
+        double tk = k;
         deltaOutput.push_back(aLk - tk);
     }
 
@@ -187,13 +188,15 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
         for (int j = 0; j < layers[layers.size() - 2]._neurons.size(); ++j)
         {
             double gradient = learningRate * deltaOutput[k] * layers[layers.size() - 2]._neurons[j].getOutput();
+            if (gradient == 0)
+                std::cout << "Gradient is 0" << std::endl;
             layers.back()._neurons[k].getWeights()[j] -= gradient;
         }
         double biasUpdate = learningRate * deltaOutput[k];
         layers.back()._neurons[k].updateBias(biasUpdate);
     }
 
-    // Calculate delta for hidden layers
+    // Calculate delta for hidden layers using relu derivative
     for (int i = layers.size() - 2; i > 1; --i)
     {
         std::vector<double> deltaHidden;
