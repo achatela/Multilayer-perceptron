@@ -83,25 +83,25 @@ int main(int argc, char **argv)
     }
     std::cout << "Validation set size: " << validationSet.size() << std::endl;
     Model model(inputs, columnNames, validationSet, 2, atoi(argv[3]), atof(argv[4]));
-    std::vector<std::vector<std::vector<double>>> classesInputs = model.getClassesInputs();
+    // std::vector<std::vector<std::vector<double>>> classesInputs = model.getClassesInputs();
 
-    int count = 0;
-    int zero = 0;
-    int one = 0;
-    for (int i = 0; i < classesInputs.size(); i++)
-    {
-        for (int j = 0; j < classesInputs[i].size(); j++)
-        {
-            int answer = model.predictClass(classesInputs[i][j]);
-            if (answer == 0)
-                zero++;
-            else
-                one++;
-            if (answer == i)
-                count++;
-        }
-    }
-    std::cout << "Zero: " << zero << std::endl;
-    std::cout << "One: " << one << std::endl;
-    std::cout << "Accuracy: " << (double)count / inputs.size() << std::endl;
+    // int count = 0;
+    // int zero = 0;
+    // int one = 0;
+    // for (int i = 0; i < classesInputs.size(); i++)
+    // {
+    //     for (int j = 0; j < classesInputs[i].size(); j++)
+    //     {
+    //         int answer = model.predictClass(classesInputs[i][j]);
+    //         if (answer == 0)
+    //             zero++;
+    //         else
+    //             one++;
+    //         if (answer == i)
+    //             count++;
+    //     }
+    // }
+    // std::cout << "Zero: " << zero << std::endl;
+    // std::cout << "One: " << one << std::endl;
+    // std::cout << "Accuracy: " << (double)count / inputs.size() << std::endl;
 }

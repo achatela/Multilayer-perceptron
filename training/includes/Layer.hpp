@@ -28,7 +28,7 @@ public:
     void debugNeuronsActivated();
 
     std::vector<double> singleSoftmax(std::vector<std::vector<double>>, std::vector<double> inputs);
-    double getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<std::vector<double>> finalWeights);
+    double getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<double> probabilities);
 
     void setLoss(double loss) { this->loss = loss; };
     double getLoss() { return this->loss; };

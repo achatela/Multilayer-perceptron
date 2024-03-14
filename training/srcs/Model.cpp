@@ -29,14 +29,12 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
             }
             this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
-        std::cout << "epoch " << i + 1 << std::endl;
-        std::vector<std::vector<double>> finalWeights;
-        // for (auto &output : this->_hiddenLayers.back().getNeurons())
-        // {
-        //     finalWeights.push_back(output.getWeights());
-        // }
-        // double validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, finalWeights);
-        // std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << this->_hiddenLayers.back().getLoss() << " - val_loss:" << validation_loss << std::endl;
+        std::vector<double> probabilities;
+        for (auto &output : this->_hiddenLayers.back().getNeurons())
+            probabilities.push_back(output.getOutput());
+        double validation_loss = this->_hiddenLayers.back().getValidationLoss(validationSet, probabilities);
+        double loss = this->_hiddenLayers.back().getValidationLoss(inputs, probabilities);
+        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << loss << " - val_loss:" << validation_loss << std::endl;
     }
     std::vector<std::vector<double>> finalWeights;
     // for (auto &output : this->_hiddenLayers.back().getNeurons())
