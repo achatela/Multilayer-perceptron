@@ -134,7 +134,7 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
     return logits;
 }
 
-void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs, std::vector<double> input)
+void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs, std::vector<double> input, std::vector<double> networkWeights)
 {
     if (mode == 0)
         this->firstHiddenLayerFeed(previousLayer, input);
@@ -146,18 +146,29 @@ void Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<
         for (int i = 0; i < probabilities.size(); i++)
             this->_neurons[i].setOutput(probabilities[i]);
 
-        double error = crossEntropyLoss(probabilities, input);
+        double error = crossEntropyLoss(probabilities, input, networkWeights);
         this->setLoss(error);
+
         // std::cout << "Loss: " << error << std::endl;
     }
 }
 
-double Layer::crossEntropyLoss(std::vector<double> probabilities, std::vector<double> inputs)
+double Layer::crossEntropyLoss(std::vector<double> probabilities, std::vector<double> inputs, std::vector<double> networkWeights)
 {
     // Categorical cross-entropy loss
     double loss = 0;
+    double lambda = 0.01;
     double y_hat = probabilities[static_cast<int>(inputs[0])]; // Predicted probability
-    return -log(y_hat + 1e-9);
+    // return -log(y_hat + 1e-9);
+    loss = -log(y_hat + 1e-9);
+
+    // Regularization
+    double sum = 0;
+    for (int i = 0; i < networkWeights.size(); i++)
+        sum += pow(networkWeights[i], 2);
+    loss += (lambda / (2 * networkWeights.size())) * sum;
+
+    return loss;
 }
 
 double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<double> probabilities)
@@ -176,21 +187,18 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
     std::vector<double> deltaOutput;
     for (int k = 0; k < layers.back()._neurons.size(); ++k)
     {
-        double aLk = layers.back()._neurons[k].getOutput();
-        // double tk = target[0];
-        double tk = k;
-        deltaOutput.push_back(aLk - tk);
+        double activation = layers.back()._neurons[k].getOutput();
+        double answer = target[0];
+        deltaOutput.push_back(activation - answer);
     }
 
     // Update weights for the output layer
-    for (int k = 0; k < layers.back()._neurons.size(); ++k)
+    for (int k = 0; k < layers[layers.size() - 1]._neurons.size(); ++k)
     {
         for (int j = 0; j < layers[layers.size() - 2]._neurons.size(); ++j)
         {
-            double gradient = learningRate * deltaOutput[k] * layers[layers.size() - 2]._neurons[j].getOutput();
-            if (gradient == 0)
-                std::cout << "Gradient is 0" << std::endl;
-            layers.back()._neurons[k].getWeights()[j] -= gradient;
+            double gradient = deltaOutput[k] * layers[layers.size() - 2]._neurons[j].getOutput();
+            layers.back()._neurons[k].getWeights()[j] -= learningRate * gradient;
         }
         double biasUpdate = learningRate * deltaOutput[k];
         layers.back()._neurons[k].updateBias(biasUpdate);
@@ -203,45 +211,47 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
         for (int j = 0; j < layers[i]._neurons.size(); ++j)
         {
             double sum = 0;
-            for (int k = 0; k < layers[i]._neurons.size(); ++k)
-            {
-                sum += deltaOutput[k] * layers[i]._neurons[k].getWeights()[j];
-            }
-            deltaHidden.push_back(sum);
+            for (int k = 0; k < layers[i + 1]._neurons.size(); ++k)
+                sum += deltaOutput[k] * layers[i + 1]._neurons[k].getWeights()[j];
+
+            int relu = layers[i]._neurons[j].getOutput() > 0 ? 1 : 0;
+            deltaHidden.push_back(sum * relu);
         }
 
-        // Update weights for the hidden layers
+        // Update weights for hidden layers based on deltaHidden
+        // Similar structure as output layer weights update, but using deltaHidden
         for (int j = 0; j < layers[i]._neurons.size(); ++j)
         {
             for (int k = 0; k < layers[i - 1]._neurons.size(); ++k)
             {
-                double gradient = learningRate * deltaHidden[j] * layers[i - 1]._neurons[k].getOutput();
-                layers[i]._neurons[j].getWeights()[k] -= gradient;
+                double gradient = deltaHidden[j] * layers[i - 1]._neurons[k].getOutput();
+                layers[i]._neurons[j].getWeights()[k] -= learningRate * gradient;
             }
             double biasUpdate = learningRate * deltaHidden[j];
             layers[i]._neurons[j].updateBias(biasUpdate);
         }
+
         deltaOutput = deltaHidden;
     }
 
-    // Update weights for the first hidden layer using target
+    // Update weights for the first hidden layer using target instead of layers[i - 1]
     std::vector<double> deltaHidden;
     for (int j = 0; j < layers[1]._neurons.size(); ++j)
     {
         double sum = 0;
-        for (int k = 0; k < layers[1]._neurons.size(); ++k)
-        {
-            sum += deltaOutput[k] * layers[1]._neurons[k].getWeights()[j];
-        }
-        deltaHidden.push_back(sum);
+        for (int k = 0; k < layers[2]._neurons.size(); ++k)
+            sum += deltaOutput[k] * layers[2]._neurons[k].getWeights()[j];
+
+        int relu = layers[1]._neurons[j].getOutput() > 0 ? 1 : 0;
+        deltaHidden.push_back(sum * relu);
     }
 
     for (int j = 0; j < layers[1]._neurons.size(); ++j)
     {
         for (int k = 0; k < target.size(); ++k)
         {
-            double gradient = learningRate * deltaHidden[j] * target[k];
-            layers[1]._neurons[j].getWeights()[k] -= gradient;
+            double gradient = deltaHidden[j] * (target[k] * layers[1]._neurons[j].getWeights()[k]);
+            layers[1]._neurons[j].getWeights()[k] -= learningRate * gradient;
         }
         double biasUpdate = learningRate * deltaHidden[j];
         layers[1]._neurons[j].updateBias(biasUpdate);

@@ -20,7 +20,9 @@ public:
     void setFinalWeights(std::vector<std::vector<double>> finalWeights) { this->finalWeights = finalWeights; };
     std::vector<std::vector<double>> getFinalWeights() { return this->finalWeights; };
 
-    int predictClass(std::vector<double> inputs);
+    int predictClass(std::vector<double> input, std::vector<Layer> layers);
+
+    double getAccuracy(std::vector<std::vector<double>> inputs, std::vector<Layer> layers);
 
 private:
     std::vector<std::vector<double>> _inputLayer;

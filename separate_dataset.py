@@ -38,7 +38,7 @@ def seperate_dataset(filename):
         # df = df.drop(columns="concave_points3")
         # df = df.drop(columns="symmetry3")
         # df = df.drop(columns="fractal_dimension3")
-        
+
         maximums, minimums = normalize_dataframe(df)
         df1 = df.iloc[:40,:]
         df2 = df.iloc[40:,:]
