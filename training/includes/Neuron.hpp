@@ -70,7 +70,5 @@ private:
     double slope = 0.01;
     double intercept = 0.01;
 
-    double learningRate = 0.01;
-
     int classPredicted;
 };

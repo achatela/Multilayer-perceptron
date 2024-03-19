@@ -1,6 +1,6 @@
 #include "../includes/Model.hpp"
 
-Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<double>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, double learningRate = 0.1) : _inputLayer(inputs), _columnNames(columnNames), _epochs(epochs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true))
+Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<double>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, double learningRate = 0.1) : _inputLayer(inputs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true)), _columnNames(columnNames), _epochs(epochs)
 {
     int neuronsNumber = 4;
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
@@ -19,7 +19,7 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
         for (std::vector<double> input : inputs)
         {
             std::vector<double> networkWeights;
-            for (int j = 1; j < this->_hiddenLayers.size(); j++)
+            for (size_t j = 1; j < this->_hiddenLayers.size(); j++)
             {
                 if (j == this->_hiddenLayers.size() - 1)
                 {
@@ -30,14 +30,14 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
                 else
                     this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, this->_inputLayer, input);
 
-                auto weights = this->_hiddenLayers[j].getNeurons();
-                for (auto &neuron : weights)
-                {
-                    for (auto &weight : neuron.getWeights())
-                    {
-                        networkWeights.push_back(weight);
-                    }
-                }
+                // auto weights = this->_hiddenLayers[j].getNeurons();
+                // for (auto &neuron : weights)
+                // {
+                //     for (auto &weight : neuron.getWeights())
+                //     {
+                //         networkWeights.push_back(weight);
+                //     }
+                // }
             }
             this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
@@ -63,7 +63,7 @@ Model::~Model()
 
 int Model::predictClass(std::vector<double> input, std::vector<Layer> layers)
 {
-    for (int j = 1; j < layers.size(); j++)
+    for (size_t j = 1; j < layers.size(); j++)
     {
         if (j == layers.size() - 1)
             layers[j].feedForward(layers[j - 1], 2, this->_inputLayer, input);
@@ -80,13 +80,13 @@ int Model::predictClass(std::vector<double> input, std::vector<Layer> layers)
 
 void Model::setClassesInputs(std::vector<std::vector<double>> inputs)
 {
-    for (int i = 0; i < inputs.size(); i++)
+    for (size_t i = 0; i < inputs.size(); i++)
     {
         std::vector<double> tmp;
         if (inputs[i][0] + 1 > _classesInputs.size())
             while (inputs[i][0] + 1 > _classesInputs.size())
                 _classesInputs.push_back(std::vector<std::vector<double>>());
-        for (int j = 1; j < inputs[i].size(); j++) // stqrts at 1 because the first element is the class
+        for (size_t j = 1; j < inputs[i].size(); j++) // stqrts at 1 because the first element is the class
         {
             tmp.push_back(inputs[i][j]);
         }

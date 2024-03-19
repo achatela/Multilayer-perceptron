@@ -10,6 +10,7 @@ Neuron::Neuron()
 // for the hidden layers and output layer
 Neuron::Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber)
 {
+    (void)featureNumber;
     heInitialization(sizePreviousLayer, weightsNumber);
     // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
@@ -18,6 +19,7 @@ Neuron::Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber)
 // for the input layer
 Neuron::Neuron(std::vector<double> inputs, int featureNumber)
 {
+    (void)featureNumber;
     _inputs = inputs;
     // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
@@ -31,7 +33,7 @@ void Neuron::heInitialization(int sizePreviousLayer, int featureNumber)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<> dis(0, std::sqrt(2.0 / sizePreviousLayer));
+    std::normal_distribution<> dis(0, std::sqrt(6.0 / sizePreviousLayer));
 
     for (int i = 0; i < featureNumber; ++i)
     {
