@@ -9,14 +9,14 @@ class Neuron
 
 public:
     // for the input layer
-    Neuron(std::vector<double> inputs, int featureNumber);
+    Neuron(std::vector<double> inputs);
     // for the hidden layers
-    Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber);
+    Neuron(int weightsNumber);
     // for the output layer
     Neuron();
     ~Neuron();
 
-    void xavierInitialization(int sizePreviousLayer, int featureNumber);
+    void xavierInitialization(int weightsNumber);
 
     double &getBias() { return this->_bias; };
     void setBias(double bias) { this->_bias = bias; };

@@ -13,7 +13,6 @@ public:
 private:
     std::vector<std::vector<double>> _inputLayer;
     std::vector<Layer> _hiddenLayers;
-    Layer _outputLayer;
 
     std::vector<std::string> _columnNames;
 };

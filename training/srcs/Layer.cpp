@@ -1,61 +1,38 @@
 #include "../includes/Layer.hpp"
 #include <numeric>
 #include <strings.h>
-// for the input layer
-Layer::Layer(std::vector<std::vector<double>> inputs)
+
+Layer::Layer() {}
+Layer::~Layer() {}
+
+Layer::Layer(std::vector<std::vector<double>> inputs) // input layer
 {
     for (size_t i = 0; i < inputs.size(); i++)
-    {
-        Neuron neuron(inputs[i], inputs[i].size());
-        _neurons.push_back(neuron);
-    }
+        _neurons.push_back(Neuron(inputs[i]));
 }
 
-// for the hidden layers
-Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber)
+Layer::Layer(int neuronsNumber, int weightsNumber) // hidden layers
 {
     for (int i = 0; i < neuronsNumber; i++)
-    {
-        Neuron neuron(sizePreviousLayer, featureNumber, weightsNumber);
-        _neurons.push_back(neuron);
-    }
-}
-
-// for the output layer
-Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer)
-{
-    (void)isOutputLayer;
-    for (int i = 0; i < neuronsNumber; i++)
-    {
-        Neuron neuron(sizePreviousLayer, featureNumber, weightsNumber);
-        _neurons.push_back(neuron);
-    }
-}
-
-Layer::~Layer()
-{
+        _neurons.push_back(Neuron(weightsNumber));
 }
 
 void Layer::sigmoid(double sum, int i)
 {
-    double result = 1.0 / (1.0 + exp(-sum));
-    this->_neurons[i].setOutput(result);
-    return;
+    this->_neurons[i].setOutput(1.0 / (1.0 + exp(-sum)));
 }
 
 std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
 {
     std::vector<double> outputs;
-    double maxInput = *std::max_element(inputs.begin(), inputs.end());
-
     std::vector<double> exponentials;
+    double maxInput = *std::max_element(inputs.begin(), inputs.end());
     double sum = 0;
 
     for (size_t i = 0; i < inputs.size(); i++)
     {
-        double exponential = exp(inputs[i] - maxInput);
-        exponentials.push_back(exponential);
-        sum += exponential;
+        exponentials.push_back(exp(inputs[i] - maxInput));
+        sum += exponentials.back();
     }
 
     for (size_t i = 0; i < exponentials.size(); i++)
@@ -64,9 +41,8 @@ std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
     return outputs;
 }
 
-void Layer::firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input)
+void Layer::firstHiddenLayerFeed(std::vector<double> input)
 {
-    (void)previousLayer;
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
         double sum = this->_neurons[i].getBias();
@@ -82,9 +58,8 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
 {
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
-        double sum = this->_neurons[i].getBias();
-
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
+        double sum = this->_neurons[i].getBias();
 
         for (size_t j = 0; j < neurons.size(); j++)
             sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
@@ -98,22 +73,20 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
     std::vector<double> logits;
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
-        double sum = this->_neurons[i].getBias();
-
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
+        double sum = this->_neurons[i].getBias();
 
         for (size_t j = 0; j < neurons.size(); j++)
             sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
         logits.push_back(sum);
     }
-    // std::cout << std::endl;
     return logits;
 }
 
-double Layer::feedForward(Layer &previousLayer, int mode, std::vector<double> input)
+void Layer::feedForward(Layer &previousLayer, int mode, std::vector<double> input)
 {
     if (mode == 0)
-        this->firstHiddenLayerFeed(previousLayer, input);
+        this->firstHiddenLayerFeed(input);
     else if (mode == 1)
         this->hiddenLayerFeed(previousLayer);
     else if (mode == 2)
@@ -122,11 +95,8 @@ double Layer::feedForward(Layer &previousLayer, int mode, std::vector<double> in
         for (size_t i = 0; i < probabilities.size(); i++)
             this->_neurons[i].setOutput(probabilities[i]);
 
-        double error = crossEntropyLoss(probabilities, input[0]);
-        this->setLoss(error);
-        return error;
+        this->setLoss(crossEntropyLoss(probabilities, input[0]));
     }
-    return 0;
 }
 
 double Layer::crossEntropyLoss(std::vector<double> probabilities, int result)

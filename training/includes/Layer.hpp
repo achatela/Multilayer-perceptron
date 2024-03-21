@@ -6,15 +6,15 @@ class Layer
 {
 
 public:
+    Layer();
     // for the input layer
     Layer(std::vector<std::vector<double>> inputs);
     // for the hidden layers
-    Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber);
+    Layer(int neuronsNumber, int weightsNumber);
     // for the output layer
-    Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer);
     ~Layer();
 
-    double feedForward(Layer &previousLayer, int mode, std::vector<double> input);
+    void feedForward(Layer &previousLayer, int mode, std::vector<double> input);
     void backPropagation(std::vector<Layer> &layers, std::vector<double> input, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
@@ -25,7 +25,7 @@ public:
     void setLoss(double loss) { this->loss = loss; };
     double getLoss() { return this->loss; };
 
-    void firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input);
+    void firstHiddenLayerFeed(std::vector<double> input);
     void hiddenLayerFeed(Layer &previousLayer);
     std::vector<double> outputLayerFeed(Layer &previousLayer);
 
