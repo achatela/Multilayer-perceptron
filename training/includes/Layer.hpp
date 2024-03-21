@@ -14,7 +14,7 @@ public:
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer);
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {}, std::vector<double> input = {}, std::vector<double> networkWeights = {});
+    double feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {}, std::vector<double> input = {}, std::vector<double> networkWeights = {});
     void backPropagation(std::vector<Layer> &layers, std::vector<double> input, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
@@ -28,7 +28,7 @@ public:
     void debugNeuronsActivated();
 
     std::vector<double> singleSoftmax(std::vector<std::vector<double>>, std::vector<double> inputs);
-    double getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<double> probabilities);
+    double getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<Layer> layers);
 
     void setLoss(double loss) { this->loss = loss; };
     double getLoss() { return this->loss; };
@@ -41,10 +41,10 @@ public:
     std::vector<double> outputLayerFeed(Layer &previousLayer);
 
     void applySoftmax();
-    void reluActivation(double sum, int i);
+    void sigmoid(double sum, int i);
 
     std::vector<double> softmaxWithInput(std::vector<double> inputs);
-    double crossEntropyLoss(std::vector<double> probabilities, std::vector<double> inputs, std::vector<double> networkWeights);
+    double crossEntropyLoss(std::vector<double> probabilities, int result, std::vector<double> networkWeights);
 
 private:
     double loss;

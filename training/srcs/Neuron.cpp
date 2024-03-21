@@ -11,7 +11,7 @@ Neuron::Neuron()
 Neuron::Neuron(int sizePreviousLayer, int featureNumber, int weightsNumber)
 {
     (void)featureNumber;
-    heInitialization(sizePreviousLayer, weightsNumber);
+    xavierInitialization(sizePreviousLayer, weightsNumber);
     // this->_bias = (double)rand() / (double)RAND_MAX;
     this->_bias = 0.01;
 }
@@ -29,7 +29,7 @@ Neuron::~Neuron()
 {
 }
 
-void Neuron::heInitialization(int sizePreviousLayer, int featureNumber)
+void Neuron::xavierInitialization(int sizePreviousLayer, int featureNumber)
 {
     std::random_device rd;
     std::mt19937 gen(rd());

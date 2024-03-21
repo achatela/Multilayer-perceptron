@@ -40,8 +40,8 @@ def seperate_dataset(filename):
         # df = df.drop(columns="fractal_dimension3")
 
         maximums, minimums = normalize_dataframe(df)
-        df1 = df.iloc[:40,:]
-        df2 = df.iloc[40:,:]
+        df1 = df.iloc[:112,:]
+        df2 = df.iloc[112:,:]
         df1.to_csv("validation_dataset.csv", index=False)
         df2.to_csv("./training/training_dataset.csv", index=False)
         with open("maximums.csv", "w") as f:

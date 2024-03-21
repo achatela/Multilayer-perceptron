@@ -16,7 +16,7 @@ public:
     Neuron();
     ~Neuron();
 
-    void heInitialization(int sizePreviousLayer, int featureNumber);
+    void xavierInitialization(int sizePreviousLayer, int featureNumber);
 
     double &getBias() { return this->_bias; };
     void setBias(double bias) { this->_bias = bias; };
