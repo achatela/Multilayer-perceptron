@@ -33,7 +33,7 @@ void Neuron::xavierInitialization(int sizePreviousLayer, int featureNumber)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<> dis(0, std::sqrt(6.0 / sizePreviousLayer));
+    std::normal_distribution<> dis(0, std::sqrt(6.0 / (sizePreviousLayer + featureNumber)));
 
     for (int i = 0; i < featureNumber; ++i)
     {

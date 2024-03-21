@@ -167,20 +167,12 @@ double Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vecto
 double Layer::crossEntropyLoss(std::vector<double> probabilities, int result, std::vector<double> networkWeights)
 {
     (void)networkWeights;
-    // Categorical cross-entropy loss
-    // double loss = 0;
-    // double lambda = 0.01;
-    double y_hat = probabilities[result]; // Predicted probability
-    return -log(y_hat);
-    // loss = -log(y_hat + 1e-9);
+    // Binary cross entropy
+    double y_hat = probabilities[result];
+    return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
 
-    // // Regularization
-    // double sum = 0;
-    // for (size_t i = 0; i < networkWeights.size(); i++)
-    //     sum += pow(networkWeights[i], 2);
-    // loss += (lambda / (2 * networkWeights.size())) * sum;
-
-    // return loss;
+    // Categorical cross entropy
+    // return -log(probabilities[result]);
 }
 
 double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<Layer> layers)
@@ -214,7 +206,8 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
     // loss += -log(probabilities[static_cast<int>(validationSet[i][0])]);
     // }
     std::cout << "Accuracy: " << accuracy << " ";
-    return loss / validationSet.size();
+    // return -(1 / validationSet.size()) * loss;
+    return -loss / validationSet.size();
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> target, double learningRate)
