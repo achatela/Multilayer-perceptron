@@ -7,10 +7,8 @@ Layer::Layer(std::vector<std::vector<double>> inputs)
     for (size_t i = 0; i < inputs.size(); i++)
     {
         Neuron neuron(inputs[i], inputs[i].size());
-        neuron.setActivated(true);
         _neurons.push_back(neuron);
     }
-    this->_biasNeuron = 0.01;
 }
 
 // for the hidden layers
@@ -21,7 +19,6 @@ Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int we
         Neuron neuron(sizePreviousLayer, featureNumber, weightsNumber);
         _neurons.push_back(neuron);
     }
-    this->_biasNeuron = 0.01;
 }
 
 // for the output layer
@@ -31,11 +28,8 @@ Layer::Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int we
     for (int i = 0; i < neuronsNumber; i++)
     {
         Neuron neuron(sizePreviousLayer, featureNumber, weightsNumber);
-        neuron.setClassPredicted(i);
-        neuron.setActivated(true);
         _neurons.push_back(neuron);
     }
-    this->_biasNeuron = 0.01; // useless
 }
 
 Layer::~Layer()
@@ -46,17 +40,8 @@ void Layer::sigmoid(double sum, int i)
 {
     // changed to sigmoid
     double result = 1.0 / (1.0 + exp(-sum));
-    this->_neurons[i].setActivated(true);
     this->_neurons[i].setOutput(result);
     return;
-    // if (sum > 0) // ReLU
-    // {
-    //     this->_neurons[i].setActivated(true);
-    //     this->_neurons[i].setOutput(sum);
-    //     return;
-    // }
-    // this->_neurons[i].setActivated(false);
-    // this->_neurons[i].setOutput(0);
 }
 
 std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
@@ -84,17 +69,6 @@ std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
     return outputs;
 }
 
-void Layer::debugNeuronsActivated()
-{
-    int number = 0;
-    for (size_t i = 0; i < this->_neurons.size(); i++)
-    {
-        if (this->_neurons[i].getActivated())
-            number++;
-    }
-    // std::cout << "Number of activated neurons: " << number << std::endl;
-}
-
 void Layer::firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input)
 {
     (void)previousLayer;
@@ -107,7 +81,6 @@ void Layer::firstHiddenLayerFeed(Layer &previousLayer, std::vector<double> input
 
         sigmoid(sum, i);
     }
-    debugNeuronsActivated();
 }
 
 void Layer::hiddenLayerFeed(Layer &previousLayer)
@@ -123,7 +96,6 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
 
         sigmoid(sum, i);
     }
-    debugNeuronsActivated();
 }
 
 std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
