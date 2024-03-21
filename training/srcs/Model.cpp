@@ -11,7 +11,7 @@ void debugModelInfos(std::vector<Layer> layers, std::vector<double> input)
 
 Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> columnNames, std::vector<std::vector<double>> validationSet, int hiddenLayersNumber = 2, int epochs = 100, double learningRate = 0.1) : _inputLayer(inputs), _outputLayer(Layer(2, this->_inputLayer.size(), columnNames.size(), true)), _columnNames(columnNames), _epochs(epochs)
 {
-    int neuronsNumber = 16;
+    int neuronsNumber = 16; // 16 0.1 best result
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     int weightsNumber = columnNames.size();
     for (int i = 0; i < hiddenLayersNumber; i++)
