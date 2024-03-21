@@ -38,7 +38,6 @@ Layer::~Layer()
 
 void Layer::sigmoid(double sum, int i)
 {
-    // changed to sigmoid
     double result = 1.0 / (1.0 + exp(-sum));
     this->_neurons[i].setOutput(result);
     return;
@@ -51,20 +50,16 @@ std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
 
     std::vector<double> exponentials;
     double sum = 0;
+
     for (size_t i = 0; i < inputs.size(); i++)
     {
-        // Subtract the max value to prevent overflow
         double exponential = exp(inputs[i] - maxInput);
         exponentials.push_back(exponential);
         sum += exponential;
     }
 
     for (size_t i = 0; i < exponentials.size(); i++)
-    {
         outputs.push_back(exponentials[i] / sum);
-        // std::cout << outputs.back() << " ";
-    }
-    // std::cout << std::endl;
 
     return outputs;
 }
@@ -115,9 +110,8 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
     return logits;
 }
 
-double Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs, std::vector<double> input, std::vector<double> networkWeights)
+double Layer::feedForward(Layer &previousLayer, int mode, std::vector<double> input)
 {
-    (void)inputs;
     if (mode == 0)
         this->firstHiddenLayerFeed(previousLayer, input);
     else if (mode == 1)
@@ -128,17 +122,15 @@ double Layer::feedForward(Layer &previousLayer, int mode, std::vector<std::vecto
         for (size_t i = 0; i < probabilities.size(); i++)
             this->_neurons[i].setOutput(probabilities[i]);
 
-        double error = crossEntropyLoss(probabilities, input[0], networkWeights);
+        double error = crossEntropyLoss(probabilities, input[0]);
         this->setLoss(error);
         return error;
-        // std::cout << "Loss: " << error << std::endl;
     }
     return 0;
 }
 
-double Layer::crossEntropyLoss(std::vector<double> probabilities, int result, std::vector<double> networkWeights)
+double Layer::crossEntropyLoss(std::vector<double> probabilities, int result)
 {
-    (void)networkWeights;
     // Binary cross entropy
     double y_hat = probabilities[result];
     return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
@@ -158,11 +150,11 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
         for (size_t j = 1; j < layers.size(); j++)
         {
             if (j == layers.size() - 1)
-                layers[j].feedForward(layers[j - 1], 2, validationSet, validationSet[i], {});
+                layers[j].feedForward(layers[j - 1], 2, validationSet[i]);
             else if (j == 1)
-                layers[j].feedForward(layers[j - 1], 0, validationSet, validationSet[i]);
+                layers[j].feedForward(layers[j - 1], 0, validationSet[i]);
             else
-                layers[j].feedForward(layers[j - 1], 1, validationSet, validationSet[i]);
+                layers[j].feedForward(layers[j - 1], 1, validationSet[i]);
         }
         for (auto &output : layers.back().getNeurons())
             probabilities.push_back(output.getOutput());
@@ -173,12 +165,7 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
     }
 
     accuracy /= validationSet.size();
-    // for (size_t i = 0; i < validationSet.size(); i++)
-    // {
-    // loss += -log(probabilities[static_cast<int>(validationSet[i][0])]);
-    // }
     std::cout << "Accuracy: " << accuracy << " ";
-    // return -(1 / validationSet.size()) * loss;
     return -loss / validationSet.size();
 }
 
@@ -209,7 +196,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> targ
         layers.back()._neurons[k].updateBias(biasUpdate);
     }
 
-    // Calculate delta for hidden layers using relu derivative
+    // Calculate gradient for hidden layers using relu derivative
     for (size_t i = layers.size() - 2; i > 1; i--)
     {
         std::vector<std::vector<double>> next_layer_gradients = std::move(layer_gradients);

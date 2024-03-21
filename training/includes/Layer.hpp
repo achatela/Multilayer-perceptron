@@ -14,7 +14,7 @@ public:
     Layer(int neuronsNumber, int sizePreviousLayer, int featureNumber, int weightsNumber, bool isOutputLayer);
     ~Layer();
 
-    double feedForward(Layer &previousLayer, int mode, std::vector<std::vector<double>> inputs = {}, std::vector<double> input = {}, std::vector<double> networkWeights = {});
+    double feedForward(Layer &previousLayer, int mode, std::vector<double> input);
     void backPropagation(std::vector<Layer> &layers, std::vector<double> input, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
@@ -31,7 +31,7 @@ public:
 
     void sigmoid(double sum, int i);
 
-    double crossEntropyLoss(std::vector<double> probabilities, int result, std::vector<double> networkWeights);
+    double crossEntropyLoss(std::vector<double> probabilities, int result);
 
 private:
     double loss;

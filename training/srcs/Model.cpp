@@ -22,11 +22,11 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
             for (size_t j = 1; j < this->_hiddenLayers.size(); j++)
             {
                 if (j == this->_hiddenLayers.size() - 1)
-                    lossSum += this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, this->_inputLayer, input, networkWeights);
+                    lossSum += this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, input);
                 else if (j == 1)
-                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, this->_inputLayer, input);
+                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, input);
                 else
-                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, this->_inputLayer, input);
+                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, input);
             }
             this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
