@@ -18,15 +18,12 @@ Model::Model(std::vector<std::vector<double>> inputs, std::vector<std::string> c
     {
         for (std::vector<double> input : inputs)
         {
-            for (size_t j = 1; j < this->_hiddenLayers.size(); j++)
-            {
-                if (j == this->_hiddenLayers.size() - 1)
-                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 2, input);
-                else if (j == 1)
-                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 0, input);
-                else
-                    this->_hiddenLayers[j].feedForward(this->_hiddenLayers[j - 1], 1, input);
-            }
+            this->_hiddenLayers[1].firstHiddenLayerFeed(input);
+
+            for (size_t j = 2; j < this->_hiddenLayers.size() - 1; j++)
+                this->_hiddenLayers[j].hiddenLayerFeed(this->_hiddenLayers[j - 1]);
+
+            this->_hiddenLayers.back().outputLayerFeed(this->_hiddenLayers[this->_hiddenLayers.size() - 2], input);
             this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
 

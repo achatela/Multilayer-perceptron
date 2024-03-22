@@ -68,7 +68,7 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
     }
 }
 
-std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
+std::vector<double> Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> input)
 {
     std::vector<double> logits;
     for (size_t i = 0; i < this->_neurons.size(); i++)
@@ -80,23 +80,13 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer)
             sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
         logits.push_back(sum);
     }
+    std::vector<double> probabilities = softmaxFunction(logits);
+
+    for (size_t i = 0; i < probabilities.size(); i++)
+        this->_neurons[i].setOutput(probabilities[i]);
+
+    this->setLoss(crossEntropyLoss(probabilities, input[0]));
     return logits;
-}
-
-void Layer::feedForward(Layer &previousLayer, int mode, std::vector<double> input)
-{
-    if (mode == 0)
-        this->firstHiddenLayerFeed(input);
-    else if (mode == 1)
-        this->hiddenLayerFeed(previousLayer);
-    else if (mode == 2)
-    {
-        std::vector<double> probabilities = softmaxFunction(this->outputLayerFeed(previousLayer));
-        for (size_t i = 0; i < probabilities.size(); i++)
-            this->_neurons[i].setOutput(probabilities[i]);
-
-        this->setLoss(crossEntropyLoss(probabilities, input[0]));
-    }
 }
 
 double Layer::crossEntropyLoss(std::vector<double> probabilities, int result)
@@ -104,9 +94,6 @@ double Layer::crossEntropyLoss(std::vector<double> probabilities, int result)
     // Binary cross entropy
     double y_hat = probabilities[result];
     return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
-
-    // Categorical cross entropy
-    // return -log(probabilities[result]);
 }
 
 double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<Layer> layers)
@@ -117,15 +104,12 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
     for (size_t i = 0; i < validationSet.size(); i++)
     {
         std::vector<double> probabilities;
-        for (size_t j = 1; j < layers.size(); j++)
-        {
-            if (j == layers.size() - 1)
-                layers[j].feedForward(layers[j - 1], 2, validationSet[i]);
-            else if (j == 1)
-                layers[j].feedForward(layers[j - 1], 0, validationSet[i]);
-            else
-                layers[j].feedForward(layers[j - 1], 1, validationSet[i]);
-        }
+
+        layers[1].firstHiddenLayerFeed(validationSet[i]);
+        for (size_t j = 2; j < layers.size() - 1; j++)
+            layers[j].hiddenLayerFeed(layers[j - 1]);
+        layers[layers.size() - 1].outputLayerFeed(layers[layers.size() - 2], validationSet[i]);
+
         for (auto &output : layers.back().getNeurons())
             probabilities.push_back(output.getOutput());
         if (std::distance(probabilities.begin(), std::max_element(probabilities.begin(), probabilities.end())) == static_cast<int>(validationSet[i][0]))

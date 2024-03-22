@@ -14,7 +14,6 @@ public:
     // for the output layer
     ~Layer();
 
-    void feedForward(Layer &previousLayer, int mode, std::vector<double> input);
     void backPropagation(std::vector<Layer> &layers, std::vector<double> input, double learningRate);
 
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
@@ -27,7 +26,7 @@ public:
 
     void firstHiddenLayerFeed(std::vector<double> input);
     void hiddenLayerFeed(Layer &previousLayer);
-    std::vector<double> outputLayerFeed(Layer &previousLayer);
+    std::vector<double> outputLayerFeed(Layer &previousLayer, std::vector<double> input);
 
     void sigmoid(double sum, int i);
 
