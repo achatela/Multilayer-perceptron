@@ -83,6 +83,7 @@
         "complex": "cpp",
         "ios": "cpp",
         "locale": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "format": "cpp"
     }
 }

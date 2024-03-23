@@ -5,7 +5,7 @@
 Layer::Layer() {}
 Layer::~Layer() {}
 
-Layer::Layer(std::vector<std::vector<double>> inputs) // input layer
+Layer::Layer(std::vector<std::vector<double>> &inputs) // input layer
 {
     for (size_t i = 0; i < inputs.size(); i++)
         _neurons.push_back(Neuron(inputs[i]));
@@ -22,7 +22,7 @@ void Layer::sigmoid(double sum, int i)
     this->_neurons[i].setOutput(1.0 / (1.0 + exp(-sum)));
 }
 
-std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
+std::vector<double> Layer::softmaxFunction(std::vector<double> &inputs)
 {
     std::vector<double> outputs;
     std::vector<double> exponentials;
@@ -41,7 +41,7 @@ std::vector<double> Layer::softmaxFunction(std::vector<double> inputs)
     return outputs;
 }
 
-void Layer::firstHiddenLayerFeed(std::vector<double> input)
+void Layer::firstHiddenLayerFeed(std::vector<double> &input)
 {
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
@@ -68,7 +68,7 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
     }
 }
 
-std::vector<double> Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> input)
+void Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> &input)
 {
     std::vector<double> logits;
     for (size_t i = 0; i < this->_neurons.size(); i++)
@@ -86,17 +86,16 @@ std::vector<double> Layer::outputLayerFeed(Layer &previousLayer, std::vector<dou
         this->_neurons[i].setOutput(probabilities[i]);
 
     this->setLoss(crossEntropyLoss(probabilities, input[0]));
-    return logits;
 }
 
-double Layer::crossEntropyLoss(std::vector<double> probabilities, int result)
+double Layer::crossEntropyLoss(std::vector<double> &probabilities, int result)
 {
     // Binary cross entropy
     double y_hat = probabilities[result];
     return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
 }
 
-double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, std::vector<Layer> layers)
+double Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers)
 {
     double loss = 0;
     double accuracy = 0;
@@ -119,11 +118,11 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> validationSet, 
     }
 
     accuracy /= validationSet.size();
-    std::cout << "Accuracy: " << accuracy << " ";
+    std::cout << "Accuracy: " << accuracy << std::endl;
     return -loss / validationSet.size();
 }
 
-void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> target, double learningRate)
+void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &target, double learningRate)
 {
 
     std::vector<double> deltaOutput;

@@ -21,9 +21,9 @@ std::ifstream fileChecking(const std::string filename)
 
 int main(int argc, char **argv)
 {
-    if (argc != 5)
+    if (argc != 6)
     {
-        std::cerr << "Usage: " << argv[0] << " <input file> <training_dataset> <n of epochs> <learning_rate>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " \"input file\" \"training_dataset\"  \"n of epochs\" \"learning_rate\" \"hidden layers pattern like 16 8\"" << std::endl;
         return 1;
     }
     std::ifstream file = fileChecking(argv[1]);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::vector<double>> validationSet;
-    if (argc == 5)
+    if (argc == 6)
     {
         std::ifstream file = fileChecking(argv[2]);
         std::string line;
@@ -81,6 +81,15 @@ int main(int argc, char **argv)
             validationSet.push_back(row);
         }
     }
+    // argv[5] is the hidden layers pattern, that is numbers separated by spaces
+    std::vector<double> hiddenLayersPattern;
+    std::string tokenHidden;
+    std::stringstream ssHidden(argv[5]);
+    while (std::getline(ssHidden, tokenHidden, ' '))
+    {
+        hiddenLayersPattern.push_back(std::stof(tokenHidden));
+    }
+
     std::cout << "Validation set size: " << validationSet.size() << std::endl;
-    Model model(inputs, columnNames, validationSet, 2, atoi(argv[3]), atof(argv[4]));
+    Model model(inputs, columnNames, validationSet, atoi(argv[3]), atof(argv[4]), hiddenLayersPattern);
 }
