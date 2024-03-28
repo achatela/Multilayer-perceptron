@@ -145,6 +145,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
             layer_gradients.back().push_back(gradient);
             layers.back()._neurons[k].getWeights()[j] -= learningRate * gradient;
         }
+
         double biasUpdate = learningRate * deltaOutput[k];
         layers.back()._neurons[k].updateBias(biasUpdate);
     }
@@ -156,12 +157,11 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
         for (size_t j = 0; j < layers[i]._neurons.size(); j++)
         {
             layer_gradients.push_back(std::vector<double>());
+            double weights_derivative_sums = 0;
             double derivates_sum = 0;
+
             for (size_t l = 0; l < next_layer_gradients.size(); l++)
                 derivates_sum += next_layer_gradients[l][j] * layers[i + 1]._neurons[l].getWeights()[j];
-
-            double biasUpdate = learningRate * derivates_sum;
-            layers[i]._neurons[j].updateBias(biasUpdate);
 
             double loss_derivative = (layers[i]._neurons[j].getOutput() * (1 - layers[i]._neurons[j].getOutput())) * derivates_sum;
 
@@ -170,7 +170,11 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
                 double gradient = loss_derivative * layers[i - 1]._neurons[k].getOutput();
                 layer_gradients.back().push_back(gradient);
                 layers[i]._neurons[j].getWeights()[k] -= learningRate * gradient;
+                weights_derivative_sums += layers[i - 1]._neurons[k].getOutput() * (1 - layers[i - 1]._neurons[k].getOutput());
             }
+
+            double biasUpdate = learningRate * derivates_sum * weights_derivative_sums;
+            layers[i]._neurons[j].updateBias(biasUpdate);
         }
     }
 
@@ -182,15 +186,17 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
         for (size_t l = 0; l < next_layer_gradients.size(); l++)
             derivates_sum += next_layer_gradients[l][j] * layers[2]._neurons[l].getWeights()[j];
 
-        double biasUpdate = learningRate * derivates_sum;
-        layers[1]._neurons[j].updateBias(biasUpdate);
-
         double loss_derivative = (layers[1]._neurons[j].getOutput() * (1 - layers[1]._neurons[j].getOutput())) * derivates_sum;
 
+        double weights_derivative_sums = 0;
         for (size_t k = 1; k < target.size(); k++)
         {
             double gradient = loss_derivative * target[k];
             layers[1]._neurons[j].getWeights()[k] -= learningRate * gradient;
+            weights_derivative_sums += layers[1]._neurons[k].getOutput() * (1 - layers[1]._neurons[k].getOutput());
         }
+
+        double biasUpdate = learningRate * derivates_sum * weights_derivative_sums;
+        layers[1]._neurons[j].updateBias(biasUpdate);
     }
 }
