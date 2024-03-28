@@ -18,11 +18,6 @@ public:
 
     void xavierInitialization(int weightsNumber);
 
-    double &getBias() { return this->_bias; };
-    void setBias(double bias) { this->_bias = bias; };
-
-    void updateBias(double delta) { this->_bias -= delta; };
-
     std::vector<double> &getWeights() { return this->_weights; };
 
     void setOutput(double output) { this->_output = output; };
@@ -33,7 +28,6 @@ public:
 
 private:
     double error;
-    double _bias;
 
     std::vector<double> _weights;
 

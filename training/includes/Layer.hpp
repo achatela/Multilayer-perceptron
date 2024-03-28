@@ -21,8 +21,11 @@ public:
 
     double getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers);
 
-    void setLoss(double loss) { this->loss = loss; };
-    double getLoss() { return this->loss; };
+    void setLoss(double loss) { this->_loss = loss; };
+    double getLoss() { return this->_loss; };
+
+    void setBiasNeuron(double biasNeuron) { this->_biasNeuron = biasNeuron; };
+    double getBiasNeuron() { return _biasNeuron; };
 
     void firstHiddenLayerFeed(std::vector<double> &input);
     void hiddenLayerFeed(Layer &previousLayer);
@@ -33,6 +36,7 @@ public:
     double crossEntropyLoss(std::vector<double> &probabilities, int result);
 
 private:
-    double loss;
+    double _loss;
     std::vector<Neuron> _neurons;
+    double _biasNeuron;
 };

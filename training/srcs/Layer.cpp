@@ -13,6 +13,7 @@ Layer::Layer(std::vector<std::vector<double>> &inputs) // input layer
 
 Layer::Layer(int neuronsNumber, int weightsNumber) // hidden layers
 {
+    setBiasNeuron((double)rand() / (double)RAND_MAX);
     for (int i = 0; i < neuronsNumber; i++)
         _neurons.push_back(Neuron(weightsNumber));
 }
@@ -45,7 +46,7 @@ void Layer::firstHiddenLayerFeed(std::vector<double> &input)
 {
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
-        double sum = this->_neurons[i].getBias();
+        double sum = this->getBiasNeuron();
 
         for (size_t j = 1; j < input.size(); j++)
             sum += this->_neurons[i].getWeights()[j] * input[j];
@@ -59,7 +60,7 @@ void Layer::hiddenLayerFeed(Layer &previousLayer)
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
-        double sum = this->_neurons[i].getBias();
+        double sum = this->getBiasNeuron();
 
         for (size_t j = 0; j < neurons.size(); j++)
             sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
@@ -74,7 +75,7 @@ void Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> &input)
     for (size_t i = 0; i < this->_neurons.size(); i++)
     {
         std::vector<Neuron> &neurons = previousLayer.getNeurons();
-        double sum = this->_neurons[i].getBias();
+        double sum = this->getBiasNeuron();
 
         for (size_t j = 0; j < neurons.size(); j++)
             sum += this->_neurons[i].getWeights()[j] * neurons[j].getOutput();
@@ -146,8 +147,8 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
             layers.back()._neurons[k].getWeights()[j] -= learningRate * gradient;
         }
 
-        double biasUpdate = learningRate * deltaOutput[k];
-        layers.back()._neurons[k].updateBias(biasUpdate);
+        double biasUpdate = layers.back().getBiasNeuron() - (learningRate * deltaOutput[k]);
+        layers.back().setBiasNeuron(biasUpdate);
     }
 
     // Calculate gradient for hidden layers using relu derivative
@@ -173,8 +174,8 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
                 weights_derivative_sums += layers[i - 1]._neurons[k].getOutput() * (1 - layers[i - 1]._neurons[k].getOutput());
             }
 
-            double biasUpdate = learningRate * derivates_sum * weights_derivative_sums;
-            layers[i]._neurons[j].updateBias(biasUpdate);
+            double biasUpdate = layers[i].getBiasNeuron() - (learningRate * derivates_sum * weights_derivative_sums);
+            layers[i].setBiasNeuron(biasUpdate);
         }
     }
 
@@ -196,7 +197,7 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
             weights_derivative_sums += layers[1]._neurons[k].getOutput() * (1 - layers[1]._neurons[k].getOutput());
         }
 
-        double biasUpdate = learningRate * derivates_sum * weights_derivative_sums;
-        layers[1]._neurons[j].updateBias(biasUpdate);
+        double biasUpdate = layers[1].getBiasNeuron() - (learningRate * derivates_sum * weights_derivative_sums);
+        layers[1].setBiasNeuron(biasUpdate);
     }
 }

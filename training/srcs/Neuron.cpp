@@ -2,12 +2,12 @@
 Neuron::Neuron() {}
 Neuron::~Neuron() {}
 
-Neuron::Neuron(int weightsNumber) : _bias((double)rand() / (double)RAND_MAX) // hidden layers and output layer
+Neuron::Neuron(int weightsNumber) // hidden layers and output layer
 {
     xavierInitialization(weightsNumber);
 }
 
-Neuron::Neuron(std::vector<double> inputs) : _bias((double)rand() / (double)RAND_MAX), _inputs(inputs) {} // input layer
+Neuron::Neuron(std::vector<double> inputs) : _inputs(inputs) {} // input layer
 
 void Neuron::xavierInitialization(int weightsNumber)
 {
