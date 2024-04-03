@@ -19,7 +19,7 @@ public:
     std::vector<Neuron> &getNeurons() { return this->_neurons; };
     std::vector<double> softmaxFunction(std::vector<double> &inputs);
 
-    double getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers);
+    void getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers, std::vector<double> &loss, std::vector<double> &accuracy);
 
     void setLoss(double loss) { this->_loss = loss; };
     double getLoss() { return this->_loss; };

@@ -19,11 +19,33 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> 
             this->_hiddenLayers.back().backPropagation(this->_hiddenLayers, input, learningRate);
         }
 
-        double validation_loss = this->_hiddenLayers[0].getValidationLoss(validationSet, this->_hiddenLayers);
-        double loss = this->_hiddenLayers[0].getValidationLoss(inputs, this->_hiddenLayers);
-
-        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss: " << loss << " - val_loss: " << validation_loss << std::endl;
+        std::cout << "epoch " << i + 1 << "/" << epochs << " - loss:";
+        this->_hiddenLayers[0].getValidationLoss(validationSet, this->_hiddenLayers, this->_validationLoss, this->_validationAccuracy);
+        std::cout << " - val_loss:";
+        this->_hiddenLayers[0].getValidationLoss(inputs, this->_hiddenLayers, this->_trainingLoss, this->_trainingAccuracy);
+        std::cout << std::endl;
     }
+
+    displayGraphs();
 }
 
 Model::~Model() {}
+
+void Model::displayGraphs()
+{
+    std::string validationLossString = "";
+    std::string validationAccuracyString = "";
+    std::string trainingLossString = "";
+    std::string trainingAccuracyString = "";
+
+    for (size_t i = 0; i < this->_validationLoss.size(); i++)
+    {
+        validationLossString += std::to_string(this->_validationLoss[i]) + " ";
+        validationAccuracyString += std::to_string(this->_validationAccuracy[i]) + " ";
+        trainingLossString += std::to_string(this->_trainingLoss[i]) + " ";
+        trainingAccuracyString += std::to_string(this->_trainingAccuracy[i]) + " ";
+    }
+
+    std::string command = "python3 display_graphs.py \"" + validationLossString + "\" \"" + validationAccuracyString + "\" \"" + trainingLossString + "\" \"" + trainingAccuracyString + "\"";
+    system(command.c_str());
+}

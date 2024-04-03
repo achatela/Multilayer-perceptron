@@ -1,4 +1,5 @@
 #include "../includes/Neuron.hpp"
+
 Neuron::Neuron() {}
 Neuron::~Neuron() {}
 

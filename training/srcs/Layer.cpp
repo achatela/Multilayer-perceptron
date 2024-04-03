@@ -96,10 +96,10 @@ double Layer::crossEntropyLoss(std::vector<double> &probabilities, int result)
     return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
 }
 
-double Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers)
+void Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers, std::vector<double> &loss, std::vector<double> &accuracy)
 {
-    double loss = 0;
-    double accuracy = 0;
+    double lossSet = 0;
+    double accuracySet = 0;
 
     for (size_t i = 0; i < validationSet.size(); i++)
     {
@@ -113,14 +113,21 @@ double Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet,
         for (auto &output : layers.back().getNeurons())
             probabilities.push_back(output.getOutput());
         if (std::distance(probabilities.begin(), std::max_element(probabilities.begin(), probabilities.end())) == static_cast<int>(validationSet[i][0]))
-            accuracy++;
+            accuracySet++;
 
-        loss += layers.back().getLoss();
+        lossSet += layers.back().getLoss();
     }
 
-    accuracy /= validationSet.size();
-    std::cout << "Accuracy: " << accuracy << std::endl;
-    return -loss / validationSet.size();
+    accuracySet /= validationSet.size();
+    lossSet = -lossSet;
+    lossSet /= validationSet.size();
+    std::cout << lossSet;
+
+    accuracy.push_back(accuracySet);
+    loss.push_back(lossSet);
+
+    // std::cout << " accuracy:" << accuracy;
+    // return -loss / validationSet.size();
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &target, double learningRate)
