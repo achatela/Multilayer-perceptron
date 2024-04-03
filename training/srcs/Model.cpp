@@ -25,6 +25,29 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> 
         this->_hiddenLayers[0].getValidationLoss(inputs, this->_hiddenLayers, this->_trainingLoss, this->_trainingAccuracy);
         std::cout << std::endl;
     }
+    for (size_t i = 1; i < this->_hiddenLayers.size(); i++)
+    {
+        this->_modelArchitecture.push_back(std::vector<std::vector<double>>());
+        for (auto &neuron : this->_hiddenLayers[i].getNeurons())
+        {
+            this->_modelArchitecture.back().push_back(std::vector<double>());
+            for (auto &weight : neuron.getWeights())
+                this->_modelArchitecture.back().back().push_back(weight);
+        }
+    }
+
+    // print model architecture
+    for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
+    {
+        std::cout << "Layer " << i << std::endl;
+        for (size_t j = 0; j < this->_modelArchitecture[i].size(); j++)
+        {
+            std::cout << "Neuron " << j << std::endl;
+            for (size_t k = 0; k < this->_modelArchitecture[i][j].size(); k++)
+                std::cout << this->_modelArchitecture[i][j][k] << " ";
+            std::cout << std::endl;
+        }
+    }
 
     displayGraphs();
 }

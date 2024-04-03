@@ -27,8 +27,6 @@ def main():
     training_loss = list(map(float, sys.argv[3].split()))
     training_accuracy = list(map(float, sys.argv[4].split()))
 
-    print(validation_loss)
-
     display_graphs(validation_loss, validation_accuracy, training_loss, training_accuracy)
 
 

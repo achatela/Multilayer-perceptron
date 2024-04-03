@@ -22,4 +22,6 @@ private:
     std::vector<double> _validationAccuracy;
     std::vector<double> _trainingLoss;
     std::vector<double> _trainingAccuracy;
+
+    std::vector<std::vector<std::vector<double>>> _modelArchitecture;
 };
