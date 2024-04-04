@@ -1,15 +1,20 @@
+#include "Layer.hpp"
+
 #include <vector>
 #include <string>
-#include "Layer.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 class Model
 {
 
 public:
     Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> &columnNames, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern);
+    Model(std::string modelWeights);
     ~Model();
 
+    void saveModel();
     void displayGraphs();
 
 private:
