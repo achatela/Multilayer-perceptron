@@ -16,30 +16,24 @@ Model::Model(std::string modelWeights)
         std::stringstream ss(line);
 
         while (getline(ss, token, '['))
-        { // Split line into tokens separated by '['
+        {
             std::vector<double> neuronWeights;
             std::stringstream wss(token);
             while (getline(wss, token, ','))
-            { // Split token into weights separated by ','
+            {
                 if (token.find(']') != std::string::npos)
                 {
                     size_t pos = token.find(']');
-                    token = token.substr(0, pos); // Remove ']'
+                    token = token.substr(0, pos);
                 }
                 if (!token.empty())
-                {
-                    neuronWeights.push_back(std::stod(token)); // Convert string to double and add to vector
-                }
+                    neuronWeights.push_back(std::stod(token));
             }
             if (!neuronWeights.empty())
-            {
-                layer.push_back(neuronWeights); // Add neuron weights to layer
-            }
+                layer.push_back(neuronWeights);
         }
         if (!layer.empty())
-        {
-            _modelArchitecture.push_back(layer); // Add layer to model architecture
-        }
+            _modelArchitecture.push_back(layer);
     }
 }
 
