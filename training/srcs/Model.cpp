@@ -15,10 +15,10 @@ Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predict
     std::cout << " - accuracy:" << this->_validationAccuracy.back() << std::endl;
 }
 
-Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> &columnNames, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern) : _inputLayer(inputs), _columnNames(columnNames)
+Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern) : _inputLayer(inputs)
 {
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
-    double numberWeights = columnNames.size();
+    int numberWeights = inputs[0].size();
     for (size_t i = 0; i < hiddenLayersPattern.size(); i++)
     {
         this->_hiddenLayers.push_back(Layer(hiddenLayersPattern[i], numberWeights));

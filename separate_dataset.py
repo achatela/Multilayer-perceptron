@@ -9,6 +9,8 @@ def normalize_dataframe(df):
     for column in df.columns:
         if column != "Diagnosis":
             df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
+        else:
+            df[column] = df[column].apply(lambda x: 1 if x == "M" else 0)
     return maximums[1:], minimums[1:]
     
 
@@ -17,27 +19,6 @@ def seperate_dataset(filename):
         df = pd.read_csv(filename)
         df = df.fillna(0)
         df = df.drop(columns="ID")
-        # drop the columns with the name texture2,primeter2,area2,smoothness2,compactness2,concavity2,concave_points2,symmetry2,fractal_dimension2,radius3,texture3,perimeter3,area3,smoothness3,compactness3,concavity3,concave_points3,symmetry3,fractal_dimension3
-        # df = df.drop(columns="radius2")
-        # df = df.drop(columns="texture2")
-        # df = df.drop(columns="perimeter2")
-        # df = df.drop(columns="area2")
-        # df = df.drop(columns="smoothness2")
-        # df = df.drop(columns="compactness2")
-        # df = df.drop(columns="concavity2")
-        # df = df.drop(columns="concave_points2")
-        # df = df.drop(columns="symmetry2")
-        # df = df.drop(columns="fractal_dimension2")
-        # df = df.drop(columns="radius3")
-        # df = df.drop(columns="texture3")
-        # df = df.drop(columns="perimeter3")
-        # df = df.drop(columns="area3")
-        # df = df.drop(columns="smoothness3")
-        # df = df.drop(columns="compactness3")
-        # df = df.drop(columns="concavity3")
-        # df = df.drop(columns="concave_points3")
-        # df = df.drop(columns="symmetry3")
-        # df = df.drop(columns="fractal_dimension3")
 
         maximums, minimums = normalize_dataframe(df)
         df1 = df.iloc[:112,:]

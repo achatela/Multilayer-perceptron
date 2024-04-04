@@ -18,17 +18,7 @@ int main(int argc, char **argv)
         std::vector<double> row;
         std::stringstream ss(line);
         while (std::getline(ss, token, ','))
-        {
-            if (token == "B" || token == "M")
-            {
-                if (token == "M")
-                    row.push_back(0);
-                else
-                    row.push_back(1);
-                continue;
-            }
             row.push_back(std::stof(token));
-        }
         predictionSet.push_back(row);
     }
     Model model(std::string(argv[1]), predictionSet);
