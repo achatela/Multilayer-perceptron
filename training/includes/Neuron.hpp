@@ -12,7 +12,8 @@ public:
     Neuron(std::vector<double> inputs);
     // for the hidden layers
     Neuron(int weightsNumber);
-    // for the output layer
+    // to load the model
+    Neuron(std::vector<double> weights, bool biasNeuron);
     Neuron();
     ~Neuron();
 

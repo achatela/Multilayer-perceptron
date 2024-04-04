@@ -1,40 +1,18 @@
 #include "../includes/Model.hpp"
 
-Model::Model(std::string modelWeights)
+Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predictionSet)
 {
-    std::ifstream file(modelWeights);
-    if (!file.is_open())
+    std::vector<double> biases = loadModel(modelWeights, predictionSet);
+
+    this->_hiddenLayers.push_back(Layer(this->_inputLayer));
+    for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
     {
-        std::cerr << "Error opening file: " << modelWeights << std::endl;
-        return;
+        this->_hiddenLayers.push_back(Layer(this->_modelArchitecture[i], biases[i]));
     }
 
-    std::string line, token;
-    while (getline(file, line))
-    {
-        std::vector<std::vector<double>> layer;
-        std::stringstream ss(line);
-
-        while (getline(ss, token, '['))
-        {
-            std::vector<double> neuronWeights;
-            std::stringstream wss(token);
-            while (getline(wss, token, ','))
-            {
-                if (token.find(']') != std::string::npos)
-                {
-                    size_t pos = token.find(']');
-                    token = token.substr(0, pos);
-                }
-                if (!token.empty())
-                    neuronWeights.push_back(std::stod(token));
-            }
-            if (!neuronWeights.empty())
-                layer.push_back(neuronWeights);
-        }
-        if (!layer.empty())
-            _modelArchitecture.push_back(layer);
-    }
+    std::cout << "loss:";
+    this->_hiddenLayers[0].getValidationLoss(predictionSet, this->_hiddenLayers, this->_validationLoss, this->_validationAccuracy);
+    std::cout << " - accuracy:" << this->_validationAccuracy.back() << std::endl;
 }
 
 Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> &columnNames, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern) : _inputLayer(inputs), _columnNames(columnNames)
@@ -61,9 +39,9 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> 
         }
 
         std::cout << "epoch " << i + 1 << "/" << epochs << " - loss:";
-        this->_hiddenLayers[0].getValidationLoss(validationSet, this->_hiddenLayers, this->_validationLoss, this->_validationAccuracy);
-        std::cout << " - val_loss:";
         this->_hiddenLayers[0].getValidationLoss(inputs, this->_hiddenLayers, this->_trainingLoss, this->_trainingAccuracy);
+        std::cout << " - val_loss:";
+        this->_hiddenLayers[0].getValidationLoss(validationSet, this->_hiddenLayers, this->_validationLoss, this->_validationAccuracy);
         std::cout << std::endl;
     }
     for (size_t i = 1; i < this->_hiddenLayers.size(); i++)
@@ -96,6 +74,50 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> 
 
 Model::~Model() {}
 
+std::vector<double> Model::loadModel(std::string modelWeights, std::vector<std::vector<double>> &predictionSet)
+{
+    std::ifstream file(modelWeights);
+    if (!file.is_open())
+        std::cerr << "Error opening file: " << modelWeights << std::endl;
+
+    std::string line, token;
+    std::vector<double> biases;
+
+    getline(file, line);
+    std::stringstream ss(line);
+    while (getline(ss, token, ','))
+    {
+        biases.push_back(std::stod(token));
+    }
+
+    while (getline(file, line))
+    {
+        std::vector<std::vector<double>> layer;
+        std::stringstream ss(line);
+
+        while (getline(ss, token, '['))
+        {
+            std::vector<double> neuronWeights;
+            std::stringstream wss(token);
+            while (getline(wss, token, ','))
+            {
+                if (token.find(']') != std::string::npos)
+                {
+                    size_t pos = token.find(']');
+                    token = token.substr(0, pos);
+                }
+                if (!token.empty())
+                    neuronWeights.push_back(std::stod(token));
+            }
+            if (!neuronWeights.empty())
+                layer.push_back(neuronWeights);
+        }
+        if (!layer.empty())
+            _modelArchitecture.push_back(layer);
+    }
+    return biases;
+}
+
 void Model::displayGraphs()
 {
     std::string validationLossString = "";
@@ -120,6 +142,15 @@ void Model::saveModel()
     std::remove("model.txt");
 
     std::ofstream file("model.txt");
+
+    // first line are the biases of each layer separated by a comma without []
+    for (size_t i = 1; i < this->_hiddenLayers.size(); i++)
+    {
+        file << this->_hiddenLayers[i].getBiasNeuron();
+        if (i != this->_hiddenLayers.size() - 1)
+            file << ",";
+    }
+    file << std::endl;
 
     for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
     {

@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     std::getline(file, line);
     std::string token;
     std::stringstream ss(line);
-    while (std::getline(ss, token, ','))
+    while (std::getline(ss, token, ',')) // TODO this skips the first line
     {
         columnNames.push_back(token);
     }

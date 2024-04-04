@@ -11,9 +11,10 @@ class Model
 
 public:
     Model(std::vector<std::vector<double>> &inputs, std::vector<std::string> &columnNames, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern);
-    Model(std::string modelWeights);
+    Model(std::string modelWeights, std::vector<std::vector<double>> &predictionSet);
     ~Model();
 
+    std::vector<double> loadModel(std::string modelWeights, std::vector<std::vector<double>> &predictionSet);
     void saveModel();
     void displayGraphs();
 

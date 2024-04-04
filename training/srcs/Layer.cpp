@@ -5,13 +5,20 @@
 Layer::Layer() {}
 Layer::~Layer() {}
 
+Layer::Layer(std::vector<std::vector<double>> &neuronsWeights, double biasNeuron) // load model
+{
+    for (size_t i = 0; i < neuronsWeights.size(); i++)
+        _neurons.push_back(Neuron(neuronsWeights[i], true));
+    setBiasNeuron(biasNeuron);
+}
+
 Layer::Layer(std::vector<std::vector<double>> &inputs) // input layer
 {
     for (size_t i = 0; i < inputs.size(); i++)
         _neurons.push_back(Neuron(inputs[i]));
 }
 
-Layer::Layer(int neuronsNumber, int weightsNumber) // hidden layers
+Layer::Layer(int neuronsNumber, int weightsNumber) // hidden layers and output layer
 {
     setBiasNeuron((double)rand() / (double)RAND_MAX);
     for (int i = 0; i < neuronsNumber; i++)

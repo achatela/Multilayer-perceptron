@@ -11,7 +11,8 @@ public:
     Layer(std::vector<std::vector<double>> &inputs);
     // for the hidden layers
     Layer(int neuronsNumber, int weightsNumber);
-    // for the output layer
+    // to load the model
+    Layer(std::vector<std::vector<double>> &neuronsWeights, double biasNeuron);
     ~Layer();
 
     void backPropagation(std::vector<Layer> &layers, std::vector<double> &input, double learningRate);

@@ -10,6 +10,10 @@ Neuron::Neuron(int weightsNumber) // hidden layers and output layer
 
 Neuron::Neuron(std::vector<double> inputs) : _inputs(inputs) {} // input layer
 
+Neuron::Neuron(std::vector<double> weights, bool biasNeuron) : _weights(weights)
+{
+}
+
 void Neuron::xavierInitialization(int weightsNumber)
 {
     std::random_device rd;
