@@ -8,3 +8,6 @@ maximums.csv
 predict
 a.out
 model.txt
+data_test.csv
+data.csv
+data_training.csv

@@ -11,6 +11,9 @@ def display_graphs(validation_loss, validation_accuracy, training_loss, training
     plt.ylabel("Loss")
     plt.legend()
 
+    plt.show(block=False)
+    plt.waitforbuttonpress()
+
     # Second graph is for accuracy
     plt.figure(2)
     plt.plot(validation_accuracy, label="Validation Accuracy")
@@ -19,7 +22,11 @@ def display_graphs(validation_loss, validation_accuracy, training_loss, training
     plt.xlabel("Epoch")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.show()
+    plt.show(block=False)
+    plt.pause(0.001)
+    plt.waitforbuttonpress()
+    plt.close()
+
 
 def main():
     validation_loss = list(map(float, sys.argv[1].split()))

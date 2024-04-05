@@ -17,6 +17,11 @@ Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predict
 
 Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern) : _inputLayer(inputs)
 {
+    std::cout << inputs.size() << std::endl;
+    for (size_t i = 0; i < inputs.size(); i++)
+    {
+        std::cout << inputs[i].size() << std::endl;
+    }
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     int numberWeights = inputs[0].size();
     for (size_t i = 0; i < hiddenLayersPattern.size(); i++)

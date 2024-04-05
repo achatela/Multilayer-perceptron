@@ -21,10 +21,22 @@ def seperate_dataset(filename):
         df = df.drop(columns="ID")
 
         maximums, minimums = normalize_dataframe(df)
-        df1 = df.iloc[:112,:]
-        df2 = df.iloc[112:,:]
+
+        df = df.sample(frac=1).reset_index(drop=True)
+
+        df1 = df.iloc[:142,:]
+        df2 = df.iloc[142:,:]
         df1.to_csv("validation_dataset.csv", index=False)
         df2.to_csv("./training/training_dataset.csv", index=False)
+        # remove the first line of both files
+        with open("validation_dataset.csv", "r") as f:
+            lines = f.readlines()
+        with open("validation_dataset.csv", "w") as f:
+            f.writelines(lines[1:])
+        with open("./training/training_dataset.csv", "r") as f:
+            lines = f.readlines()
+        with open("./training/training_dataset.csv", "w") as f:
+            f.writelines(lines[1:])
         with open("maximums.csv", "w") as f:
             writer = csv.writer(f)
             writer.writerow(maximums)

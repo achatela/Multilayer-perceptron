@@ -99,8 +99,9 @@ void Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> &input)
 double Layer::crossEntropyLoss(std::vector<double> &probabilities, int result)
 {
     // Binary cross entropy
-    double y_hat = probabilities[result];
-    return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
+    double y_hat = probabilities[1];
+    return (result * log(y_hat) + (1 - result) * log(1 - y_hat));
+    // return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
 }
 
 void Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers, std::vector<double> &loss, std::vector<double> &accuracy)
@@ -108,26 +109,27 @@ void Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, s
     double lossSet = 0;
     double accuracySet = 0;
 
+    std::vector<Layer> layersCopy = layers;
+
     for (size_t i = 0; i < validationSet.size(); i++)
     {
         std::vector<double> probabilities;
 
-        layers[1].firstHiddenLayerFeed(validationSet[i]);
-        for (size_t j = 2; j < layers.size() - 1; j++)
-            layers[j].hiddenLayerFeed(layers[j - 1]);
-        layers[layers.size() - 1].outputLayerFeed(layers[layers.size() - 2], validationSet[i]);
+        layersCopy[1].firstHiddenLayerFeed(validationSet[i]);
+        for (size_t j = 2; j < layersCopy.size() - 1; j++)
+            layersCopy[j].hiddenLayerFeed(layersCopy[j - 1]);
+        layersCopy[layersCopy.size() - 1].outputLayerFeed(layersCopy[layersCopy.size() - 2], validationSet[i]);
 
-        for (auto &output : layers.back().getNeurons())
+        for (auto &output : layersCopy.back().getNeurons())
             probabilities.push_back(output.getOutput());
         if (std::distance(probabilities.begin(), std::max_element(probabilities.begin(), probabilities.end())) == static_cast<int>(validationSet[i][0]))
             accuracySet++;
 
-        lossSet += layers.back().getLoss();
+        lossSet += layersCopy.back().getLoss();
     }
 
     accuracySet /= validationSet.size();
-    lossSet = -lossSet;
-    lossSet /= validationSet.size();
+    lossSet = -(1.0 / validationSet.size()) * lossSet;
     std::cout << lossSet;
 
     accuracy.push_back(accuracySet);
