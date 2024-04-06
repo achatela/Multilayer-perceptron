@@ -14,7 +14,7 @@ public:
     Model(std::string modelWeights, std::vector<std::vector<double>> &predictionSet);
     ~Model();
 
-    std::vector<double> loadModel(std::string modelWeights, std::vector<std::vector<double>> &predictionSet);
+    std::vector<double> loadModel(std::string modelWeights);
     void saveModel();
     void displayGraphs();
 

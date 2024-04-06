@@ -87,6 +87,11 @@ int main(int argc, char **argv)
 {
     try
     {
+        if (argc != 3)
+        {
+            std::cerr << "Usage: ./predict model.txt dataset.csv" << std::endl;
+            return 1;
+        }
         std::vector<std::vector<double>> predictionSet;
         try
         {
@@ -105,7 +110,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        int reference = predictionSet[0].size();
+        size_t reference = predictionSet[0].size();
         for (size_t i = 0; i < predictionSet.size(); i++)
         {
             if (predictionSet[i].size() != reference)

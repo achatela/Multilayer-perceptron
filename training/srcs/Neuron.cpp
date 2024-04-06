@@ -7,7 +7,7 @@ Neuron::Neuron(int weightsNumber) { xavierInitialization(weightsNumber); } // hi
 
 Neuron::Neuron(std::vector<double> inputs) : _inputs(inputs) {} // input layer
 
-Neuron::Neuron(std::vector<double> weights, bool biasNeuron) : _weights(weights) {} // load model
+Neuron::Neuron(std::vector<double> weights, bool biasNeuron) : _weights(weights) { (void)biasNeuron; } // load model
 
 void Neuron::xavierInitialization(int weightsNumber)
 {

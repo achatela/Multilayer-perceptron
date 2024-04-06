@@ -99,7 +99,7 @@ std::vector<std::vector<double>> loadDatasetEvaluation(std::string filename)
 
 void checkCorrectness(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet)
 {
-    int reference = inputs[0].size();
+    size_t reference = inputs[0].size();
     for (size_t i = 0; i < inputs.size(); i++)
     {
         if (inputs[i].size() != reference)

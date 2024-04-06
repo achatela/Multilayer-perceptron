@@ -25,8 +25,8 @@ def seperate_dataset(filename):
         df1 = df.iloc[:142,:]
         df2 = df.iloc[142:,:]
 
-        df1.to_csv("validation_dataset.csv", index=False)
-        df2.to_csv("./training/training_dataset.csv", index=False)
+        df1.to_csv("data_training.csv", index=False)
+        df2.to_csv("data_test.csv", index=False)
 
     except Exception as e:
         sys.exit(e)

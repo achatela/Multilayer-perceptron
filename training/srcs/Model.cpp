@@ -2,7 +2,7 @@
 
 Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predictionSet)
 {
-    std::vector<double> biases = loadModel(modelWeights, predictionSet);
+    std::vector<double> biases = loadModel(modelWeights);
 
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
@@ -61,7 +61,7 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<d
 
 Model::~Model() {}
 
-std::vector<double> Model::loadModel(std::string modelWeights, std::vector<std::vector<double>> &predictionSet)
+std::vector<double> Model::loadModel(std::string modelWeights)
 {
     std::ifstream file(modelWeights);
     if (!file.is_open())
@@ -120,7 +120,7 @@ void Model::displayGraphs()
         trainingAccuracyString += std::to_string(this->_trainingAccuracy[i]) + " ";
     }
 
-    std::string command = "python3 display_graphs.py \"" + validationLossString + "\" \"" + validationAccuracyString + "\" \"" + trainingLossString + "\" \"" + trainingAccuracyString + "\"";
+    std::string command = "python3 utils/display_graphs.py \"" + validationLossString + "\" \"" + validationAccuracyString + "\" \"" + trainingLossString + "\" \"" + trainingAccuracyString + "\"";
     system(command.c_str());
 }
 
