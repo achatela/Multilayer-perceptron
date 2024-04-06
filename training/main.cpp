@@ -19,86 +19,157 @@ std::ifstream fileChecking(const std::string filename)
     return file;
 }
 
-std::vector<std::vector<double>> parseCsv(const std::string &filename)
+std::vector<std::vector<double>> loadDataset(std::string filename)
 {
-    std::vector<std::vector<double>> data;
     std::ifstream file = fileChecking(filename);
-    std::string line;
-
-    while (getline(file, line))
-    {
-        double value;
-        std::vector<double> row;
-        std::stringstream ss(line);
-
-        while (ss >> value)
-        {
-            row.push_back(value);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
-
-        data.push_back(row);
-    }
-    file.close();
-    return data;
-}
-
-int main(int argc, char **argv)
-{
-    // std::cout.precision(100);
-    if (argc != 6)
-    {
-        std::cerr << "Usage: " << argv[0] << " \"input file\" \"training_dataset\"  \"n of epochs\" \"learning_rate\" \"hidden layers pattern like 16 8\"" << std::endl;
-        return 1;
-    }
-
-    // std::vector<std::vector<double>> inputs = parseCsv(argv[1]);
-    std::vector<std::vector<double>> validationSet = parseCsv(argv[2]);
-
-    std::ifstream file = fileChecking(argv[1]);
-    std::vector<std::vector<double>> inputs;
+    std::vector<std::vector<double>> datas;
     std::vector<std::string> columnNames;
     std::string line;
     std::getline(file, line);
     std::string token;
     std::stringstream ss(line);
-    while (std::getline(ss, token, ',')) // TODO this skips the first line
+
+    while (std::getline(ss, token, ',')) // Skip the first line
     {
         columnNames.push_back(token);
     }
+
     while (std::getline(file, line))
     {
         std::vector<double> row;
         std::stringstream ss(line);
         while (std::getline(ss, token, ','))
             row.push_back(std::stof(token));
-        inputs.push_back(row);
+        datas.push_back(row);
     }
     file.close();
 
-    // std::vector<std::vector<double>> inputs;
-    // std::ifstream file = fileChecking(argv[1]);
-    // std::string line;
-    // while (std::getline(file, line))
-    // {
-    //     std::vector<double> row;
-    //     std::stringstream ss(line);
-    //     std::string token;
-    //     while (std::getline(ss, token, ','))
-    //         row.push_back(std::stof(token));
-    //     inputs.push_back(row);
-    // }
+    return datas;
+}
 
-    std::vector<double> hiddenLayersPattern;
-    std::string tokenHidden;
-    std::stringstream ssHidden(argv[5]);
-    while (std::getline(ssHidden, tokenHidden, ' '))
+void normalize(std::vector<std::vector<double>> &datas)
+{
+    for (size_t i = 0; i < datas[0].size(); i++)
     {
-        hiddenLayersPattern.push_back(std::stof(tokenHidden));
+        double max = -1;
+        double min = 1000000000;
+        for (size_t j = 0; j < datas.size(); j++)
+        {
+            if (datas[j][i] > max)
+                max = datas[j][i];
+            if (datas[j][i] < min)
+                min = datas[j][i];
+        }
+        for (size_t j = 0; j < datas.size(); j++)
+            datas[j][i] = (datas[j][i] - min) / (max - min);
+    }
+}
+
+std::vector<std::vector<double>> loadDatasetEvaluation(std::string filename)
+{
+    std::ifstream file = fileChecking(filename);
+    std::vector<std::vector<double>> datas;
+    std::vector<std::string> columnNames;
+    std::string line;
+    std::string token;
+    std::stringstream ss(line);
+
+    while (std::getline(file, line))
+    {
+        std::vector<double> row;
+        std::stringstream ss(line);
+        std::getline(ss, token, ','); // Skip the first column
+        while (std::getline(ss, token, ','))
+        {
+            if (token == "M")
+                row.push_back(0);
+            else if (token == "B")
+                row.push_back(1);
+            else
+                row.push_back(std::stof(token));
+        }
+        datas.push_back(row);
+    }
+    file.close();
+
+    normalize(datas);
+
+    return datas;
+}
+
+void checkCorrectness(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet)
+{
+    int reference = inputs[0].size();
+    for (size_t i = 0; i < inputs.size(); i++)
+    {
+        if (inputs[i].size() != reference)
+        {
+            std::cerr << "Error: input dataset is not consistent" << std::endl;
+            exit(1);
+        }
     }
 
-    std::cout << "Inputs: " << inputs.size() << " Validation set: " << validationSet.size() << std::endl;
+    for (size_t i = 0; i < validationSet.size(); i++)
+    {
+        if (validationSet[i].size() != reference)
+        {
+            std::cerr << "Error: validation dataset is not consistent" << std::endl;
+            exit(1);
+        }
+    }
+}
 
-    Model model(inputs, validationSet, atoi(argv[3]), atof(argv[4]), hiddenLayersPattern);
+int main(int argc, char **argv)
+{
+    try
+    {
+        if (argc != 6 && argc != 3)
+        {
+            std::cerr << "Usage: " << argv[0] << " \"input file\" \"training_dataset\"  \"n of epochs\" \"learning_rate\" \"hidden layers pattern like 16 8\"" << std::endl;
+            return 1;
+        }
+
+        std::vector<std::vector<double>> inputs;
+        std::vector<std::vector<double>> validationSet;
+
+        try
+        {
+            inputs = loadDataset(std::string(argv[1]));
+            validationSet = loadDataset(std::string(argv[2]));
+        }
+        catch (const std::exception &e) // To comply with the dataset produced by evaluation.py
+        {
+            if (std::string(e.what()) == "stof")
+            {
+                inputs = loadDatasetEvaluation(std::string(argv[1]));
+                validationSet = loadDatasetEvaluation(std::string(argv[2]));
+            }
+            else
+            {
+                std::cerr << e.what() << std::endl;
+                throw;
+            }
+        }
+
+        checkCorrectness(inputs, validationSet);
+
+        if (argc == 3)
+            Model model(inputs, validationSet);
+        else if (argc == 6)
+        {
+            std::vector<double> hiddenLayersPattern;
+            std::string tokenHidden;
+            std::stringstream ssHidden(argv[5]);
+            while (std::getline(ssHidden, tokenHidden, ' '))
+            {
+                hiddenLayersPattern.push_back(std::stof(tokenHidden));
+            }
+            Model model(inputs, validationSet, atoi(argv[3]), atof(argv[4]), hiddenLayersPattern);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 }

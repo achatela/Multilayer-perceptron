@@ -3,8 +3,6 @@ __pycache__
 
 training_dataset.csv
 validation_dataset.csv
-minimums.csv
-maximums.csv
 predict
 a.out
 model.txt

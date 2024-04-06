@@ -15,13 +15,8 @@ Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predict
     std::cout << " - accuracy:" << this->_validationAccuracy.back() << std::endl;
 }
 
-Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern) : _inputLayer(inputs)
+Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> hiddenLayersPattern) : _inputLayer(inputs)
 {
-    std::cout << inputs.size() << std::endl;
-    for (size_t i = 0; i < inputs.size(); i++)
-    {
-        std::cout << inputs[i].size() << std::endl;
-    }
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     int numberWeights = inputs[0].size();
     for (size_t i = 0; i < hiddenLayersPattern.size(); i++)
@@ -60,21 +55,8 @@ Model::Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<d
         }
     }
 
-    // debug print model architecture
-    // for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
-    // {
-    //     std::cout << "Layer " << i << std::endl;
-    //     for (size_t j = 0; j < this->_modelArchitecture[i].size(); j++)
-    //     {
-    //         std::cout << "Neuron " << j << std::endl;
-    //         for (size_t k = 0; k < this->_modelArchitecture[i][j].size(); k++)
-    //             std::cout << this->_modelArchitecture[i][j][k] << " ";
-    //         std::cout << std::endl;
-    //     }
-    // }
-
     saveModel();
-    displayGraphs(); // block the program until the user closes the graphs for the moment
+    displayGraphs();
 }
 
 Model::~Model() {}

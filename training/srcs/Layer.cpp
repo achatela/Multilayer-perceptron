@@ -101,7 +101,6 @@ double Layer::crossEntropyLoss(std::vector<double> &probabilities, int result)
     // Binary cross entropy
     double y_hat = probabilities[1];
     return (result * log(y_hat) + (1 - result) * log(1 - y_hat));
-    // return y_hat * log(y_hat) + (1 - y_hat) * log(1 - y_hat);
 }
 
 void Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, std::vector<Layer> &layers, std::vector<double> &loss, std::vector<double> &accuracy)

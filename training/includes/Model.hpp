@@ -10,7 +10,7 @@ class Model
 {
 
 public:
-    Model(std::vector<std::vector<double>> &inputs,  std::vector<std::vector<double>> &validationSet, int epochs, double learningRate, std::vector<double> &hiddenLayersPattern);
+    Model(std::vector<std::vector<double>> &inputs, std::vector<std::vector<double>> &validationSet, int epochs = 1000, double learningRate = 0.001, std::vector<double> hiddenLayersPattern = {8, 4});
     Model(std::string modelWeights, std::vector<std::vector<double>> &predictionSet);
     ~Model();
 
@@ -21,7 +21,6 @@ public:
 private:
     std::vector<std::vector<double>> _inputLayer;
     std::vector<Layer> _hiddenLayers;
-
 
     std::vector<double> _validationLoss;
     std::vector<double> _validationAccuracy;

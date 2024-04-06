@@ -4,45 +4,30 @@ import pandas as pd
 
 # Normalize the dataframe into a range of 0 to 1
 def normalize_dataframe(df):
-    maximums = [df[column].max() for column in df.columns]
-    minimums = [df[column].min() for column in df.columns]
-    for column in df.columns:
-        if column != "Diagnosis":
+    for i, column in enumerate(df.columns):
+        if i != 0:
             df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
         else:
             df[column] = df[column].apply(lambda x: 1 if x == "M" else 0)
-    return maximums[1:], minimums[1:]
+
     
 
 def seperate_dataset(filename):
     try:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(filename, header=None)
         df = df.fillna(0)
-        df = df.drop(columns="ID")
+        df = df.drop(columns=0, axis=0)
 
-        maximums, minimums = normalize_dataframe(df)
+        normalize_dataframe(df)
 
-        df = df.sample(frac=1).reset_index(drop=True)
+        df = df.sample(frac=1)
 
         df1 = df.iloc[:142,:]
         df2 = df.iloc[142:,:]
+
         df1.to_csv("validation_dataset.csv", index=False)
         df2.to_csv("./training/training_dataset.csv", index=False)
-        # remove the first line of both files
-        with open("validation_dataset.csv", "r") as f:
-            lines = f.readlines()
-        with open("validation_dataset.csv", "w") as f:
-            f.writelines(lines[1:])
-        with open("./training/training_dataset.csv", "r") as f:
-            lines = f.readlines()
-        with open("./training/training_dataset.csv", "w") as f:
-            f.writelines(lines[1:])
-        with open("maximums.csv", "w") as f:
-            writer = csv.writer(f)
-            writer.writerow(maximums)
-        with open("minimums.csv", "w") as f:
-            writer = csv.writer(f)
-            writer.writerow(minimums)
+
     except Exception as e:
         sys.exit(e)
 
