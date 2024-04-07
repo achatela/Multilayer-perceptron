@@ -2,7 +2,6 @@ import sys
 import csv
 import pandas as pd
 
-# Normalize the dataframe into a range of 0 to 1
 def normalize_dataframe(df):
     for i, column in enumerate(df.columns):
         if i != 0:

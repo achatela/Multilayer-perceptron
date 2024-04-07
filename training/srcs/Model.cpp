@@ -6,9 +6,7 @@ Model::Model(std::string modelWeights, std::vector<std::vector<double>> &predict
 
     this->_hiddenLayers.push_back(Layer(this->_inputLayer));
     for (size_t i = 0; i < this->_modelArchitecture.size(); i++)
-    {
         this->_hiddenLayers.push_back(Layer(this->_modelArchitecture[i], biases[i]));
-    }
 
     std::cout << "loss:";
     this->_hiddenLayers[0].getValidationLoss(predictionSet, this->_hiddenLayers, this->_validationLoss, this->_validationAccuracy);
@@ -127,10 +125,8 @@ void Model::displayGraphs()
 void Model::saveModel()
 {
     std::remove("model.txt");
-
     std::ofstream file("model.txt");
-
-    // first line are the biases of each layer separated by a comma without []
+    
     for (size_t i = 1; i < this->_hiddenLayers.size(); i++)
     {
         file << this->_hiddenLayers[i].getBiasNeuron();

@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import sys
 
 def display_graphs(validation_loss, validation_accuracy, training_loss, training_accuracy):
-    # First graph is for loss
     plt.figure(1)
     plt.plot(validation_loss, label="Validation Loss")
     plt.plot(training_loss, label="Training Loss")
@@ -10,11 +9,9 @@ def display_graphs(validation_loss, validation_accuracy, training_loss, training
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.legend()
-
     plt.show(block=False)
     plt.waitforbuttonpress()
 
-    # Second graph is for accuracy
     plt.figure(2)
     plt.plot(validation_accuracy, label="Validation Accuracy")
     plt.plot(training_accuracy, label="Training Accuracy")

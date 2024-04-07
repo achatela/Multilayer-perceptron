@@ -23,6 +23,12 @@ std::vector<std::vector<double>> loadDataset(std::string filename)
     std::string line, token;
     std::getline(file, line);
     std::stringstream ss(line);
+
+    while (std::getline(ss, token, ','))
+    {
+        continue;
+    }
+
     while (std::getline(file, line))
     {
         std::vector<double> row;
@@ -59,8 +65,6 @@ std::vector<std::vector<double>> loadDatasetEvaluation(std::string filename)
     std::vector<std::vector<double>> datas;
     std::ifstream file = fileChecking(filename);
     std::string line, token;
-    std::getline(file, line);
-    std::stringstream ss(line);
     while (std::getline(file, line))
     {
         std::vector<double> row;

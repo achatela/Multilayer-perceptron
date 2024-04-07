@@ -98,7 +98,6 @@ void Layer::outputLayerFeed(Layer &previousLayer, std::vector<double> &input)
 
 double Layer::crossEntropyLoss(std::vector<double> &probabilities, int result)
 {
-    // Binary cross entropy
     double y_hat = probabilities[1];
     return (result * log(y_hat) + (1 - result) * log(1 - y_hat));
 }
@@ -133,14 +132,10 @@ void Layer::getValidationLoss(std::vector<std::vector<double>> &validationSet, s
 
     accuracy.push_back(accuracySet);
     loss.push_back(lossSet);
-
-    // std::cout << " accuracy:" << accuracy;
-    // return -loss / validationSet.size();
 }
 
 void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &target, double learningRate)
 {
-
     std::vector<double> deltaOutput;
     for (size_t k = 0; k < layers.back()._neurons.size(); k++)
     {
@@ -150,8 +145,6 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
     }
 
     std::vector<std::vector<double>> layer_gradients;
-
-    // Update weights for the output layer
     for (size_t k = 0; k < layers[layers.size() - 1]._neurons.size(); k++)
     {
         layer_gradients.push_back(std::vector<double>());
@@ -166,7 +159,6 @@ void Layer::backPropagation(std::vector<Layer> &layers, std::vector<double> &tar
         layers.back().setBiasNeuron(biasUpdate);
     }
 
-    // Calculate gradient for hidden layers using relu derivative
     for (size_t i = layers.size() - 2; i > 1; i--)
     {
         std::vector<std::vector<double>> next_layer_gradients = std::move(layer_gradients);
