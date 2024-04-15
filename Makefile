@@ -15,10 +15,12 @@ all: train predict
 shuffle:
 	python3 utils/separate_dataset.py data.csv
 	./train data_training.csv data_test.csv 1000 0.0023 "8 4"
+	./predict model.txt data_training.csv
 
 evaluation:
 	python3 utils/evaluation.py data.csv
 	./train data_training.csv data_test.csv 1000 0.0023 "8 4"
+	./predict model.txt data_training.csv
 
 train: training/training.cpp $(FULL_SRCS) $(FULL_INC)
 	$(CXX) $(CXXFLAGS) -o $@ $(filter %.cpp, $^)
